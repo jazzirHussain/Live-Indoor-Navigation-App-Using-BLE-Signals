@@ -40,7 +40,7 @@ public class SecondFragment extends Fragment {
         room_vertices.put("Lift 1",6);
         room_vertices.put("Lift 2",0);
         room_vertices.put("Office",3);
-        room_vertices.put("Principal Room",4);
+        room_vertices.put("Principal Room",5);
         HashMap<String,Integer> room_floor=new HashMap<String,Integer>();
         room_floor.put("Entrance",1);
         room_floor.put("Reception",1);

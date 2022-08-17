@@ -51,20 +51,24 @@ public class CustomView extends View {
     private static int start_floor_num=0,dest_floor_num=0,start_room_vertex=0,dest_room_vertex=0;
     private static String destBuilding;
     private final int[][] adjacencyMatrix_floor1 = {
-            {0, 1, 0, 0, 0, 0, 0},
-            {1, 0, 1, 1, 0, 0, 0},
-            {0, 1, 0, 0, 0, 0, 0},
-            {0, 1, 0, 0, 1, 1, 0},
-            {0, 0, 0, 1, 0, 0, 0},
-            {0, 0, 0, 1, 0, 0, 1},
-            {0, 0, 0, 0, 0, 1, 0}
-};
+                    {0, 1, 0, 0, 0, 0, 0, 0},
+                    {1, 0, 1, 1, 0, 0, 0, 0},
+                    {0, 1, 0, 0, 0, 0, 0, 0},
+                    {0, 1, 0, 0, 1, 1, 0, 0},
+                    {0, 0, 0, 1, 0, 0, 0, 1},
+                    {0, 0, 0, 1, 0, 0, 1, 0},
+                    {0, 0, 0, 0, 0, 1, 0, 0},
+                    {0, 0, 0, 0, 1, 0, 0, 0}
+
+    };
     private final int[][] adjacencyMatrix_floor2={
-                    {0, 1, 0, 0, 0},
-                    {1, 0, 1, 0, 0},
-                    {0, 1, 0, 1, 1},
-                    {0, 0, 1, 0, 0},
-                    {0, 0, 1, 0, 0}
+            {0, 1, 0, 0, 0, 0},
+            {1, 0, 1, 0, 0, 0},
+            {0, 1, 0, 1, 1, 0},
+            {0, 0, 1, 0, 0, 0},
+            {0, 0, 1, 0, 0, 1},
+            {0, 0, 0, 0, 1, 0}
+
 
     };
     private final static int[][] WAY_POINTS= {
@@ -75,15 +79,16 @@ public class CustomView extends View {
             {311, 554},
             {265, 657},
             {265, 618},
+            {311,284},
     };
     private final static int[][] WAY_POINTS_FLOOR2={
             {255,664},
             {325,664},
-            {325,459},
-            {275,459},
-            {325,440}
+            {325,450},
+            {184,450},
+            {325,248},
+            {249,248}
     };
-
 
     private static int[][] converted_way_points;
     public CustomView(Context context) throws JSONException {
@@ -188,7 +193,7 @@ public class CustomView extends View {
         bluePaint.setStrokeWidth(STROKE_WIDTH);
       // canvas.save();
 if(counter==0){
-    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.reception_edited);
+    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.reception_blue);
     try {
         bitmap_created = BitmapCreation(bitmap2);
     } catch (JSONException e) {
@@ -199,7 +204,7 @@ if(counter==0){
     changeWayPointsToDeviceDimension(WAY_POINTS);
 
     Log.i("PATH", "Calling dij"+getDestRoomVertex());
-    DijkstrasAlgorithm.dijkstra(adjacencyMatrix_floor1, 0, 6);
+    DijkstrasAlgorithm.dijkstra(adjacencyMatrix_floor1, 0, 7);
     selected_pathpoints_new=Path_Result.getIntegerPath();
     Log.i("PATH", Arrays.toString(selected_pathpoints_new));
 
@@ -239,7 +244,7 @@ if(counter==0){
         }
     }, 6000);
 }else if(counter==1){
-    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.second_floor_full);
+    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.second_floor_blue);
     try {
         bitmap_created = BitmapCreation(bitmap2);
     } catch (JSONException e) {
