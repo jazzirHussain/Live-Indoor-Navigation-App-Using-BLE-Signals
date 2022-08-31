@@ -7,14 +7,14 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.AssetManager;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -30,8 +30,6 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONException;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -51,7 +49,7 @@ import weka.core.Instances;
 
 import static android.content.Context.SENSOR_SERVICE;
 
-public class NavigationFragment extends Fragment {
+public class NavigationFragment extends Fragment implements SensorEventListener {
     HashMap<String, Integer> fixedMACBLE = new HashMap<String, Integer>();
     HashMap<String, Integer> BLE_FLOOR = new HashMap<String, Integer>();
     Button btn_location,btn_viewmaps;
@@ -101,6 +99,12 @@ public class NavigationFragment extends Fragment {
     private static int collectionCount=0;
     private Context mContext;
     static String rssi_old;
+    TextView textView,textView1;
+    Spinner dropdown;
+    Button btn_nav;
+    String[] floor = new String[] {
+            "Entrance", "Reception", "Library", "Lift 1","Lift 2", "Office", "Principal Room"
+    };
     int x_flag = 1,scan_val = 0;
     @Override
     public void onAttach(Context context) {
@@ -118,9 +122,7 @@ public class NavigationFragment extends Fragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
-        String[] floor = new String[] {
-                "Entrance", "Reception", "Library", "Lift 1","Lift 2", "Office", "Principal Room"
-        };
+
         dbmanager=new DatabaseManger(mContext);
         decimalFormatter = new DecimalFormat("#");
         decimalFormatter.setMaximumFractionDigits(8);
@@ -129,6 +131,10 @@ public class NavigationFragment extends Fragment {
         btScanner = btAdapter.getBluetoothLeScanner();
 
         sensorManager = (SensorManager) getActivity().getApplicationContext().getSystemService(SENSOR_SERVICE);
+        sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
+        for (Sensor sensor : sensorList) {
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
+        }
         listBluetoothDevice = new ArrayList<>();
         device_rssi_dynamic = new HashMap<String, String>();
         device_scan_no = new HashMap<String, Integer>();
@@ -142,12 +148,13 @@ public class NavigationFragment extends Fragment {
                 container, false);
 //        btn_location = view.findViewById(R.id.btn_my_location);
 //        btn_viewmaps=view.findViewById(R.id.btn_view_maps);
-        TextView textView=view.findViewById(R.id.tv_start);
-        TextView textView1=view.findViewById(R.id.textView4);
-        Spinner dropdown=view.findViewById(R.id.spinner_waypoints);
+        textView=view.findViewById(R.id.tv_start);
+        textView1=view.findViewById(R.id.textView4);
+        dropdown=view.findViewById(R.id.spinner_waypoints);
+        btn_nav=view.findViewById(R.id.btn_nav);
         Log.i(WEKA_TEST,  "clicked on button");
-        textView.setText("Searching for your location");
-        scanBLE();
+
+        boolean stat=scanBLE(container,view);
         //scanBLE();
 
 //        Handler handler = new Handler();
@@ -156,37 +163,38 @@ public class NavigationFragment extends Fragment {
 //                if(this!=null ){
 //                    Log.i("Values3", "Message");
 //                    textView.setText("Entrance");
-//                    textView1.setVisibility(View.VISIBLE);
-//                    dropdown.setVisibility(View.VISIBLE);
-//                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_spinner_item, floor);
-//                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//                    dropdown.setAdapter(adapter);
-//                    Button button = (Button) view.findViewById(R.id.button1);
+//        if(stat) {
+//            textView1.setVisibility(View.VISIBLE);
+//            dropdown.setVisibility(View.VISIBLE);
+//            ArrayAdapter<String> adapter = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_spinner_item, floor);
+//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//            dropdown.setAdapter(adapter);
+//            Button button = (Button) view.findViewById(R.id.button1);
 //
-//                    button.setOnClickListener(new View.OnClickListener()
-//                    {
-//                        @Override
-//                        public void onClick(View v)
-//                        {
-//                            FragmentManager fm = getFragmentManager();
-//                            FragmentTransaction ft = fm.beginTransaction();
-//                            SecondFragment llf = new SecondFragment();
-//                            Bundle args = new Bundle();
-//                            args.putString("spinnerValue",dropdown.getSelectedItem().toString());
+//            button.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    FragmentManager fm = getFragmentManager();
+//                    FragmentTransaction ft = fm.beginTransaction();
+//                    SecondFragment llf = new SecondFragment();
+//                    Bundle args = new Bundle();
+//                    args.putString("spinnerValue", dropdown.getSelectedItem().toString());
 //
-//                            llf.setArguments(args);
-//                            ft.replace(((ViewGroup)getView().getParent()).getId(), llf);
-//                            ft.commit();
-//                        }
-//                    });
+//                    llf.setArguments(args);
+//                    ft.replace(((ViewGroup) getView().getParent()).getId(), llf);
+//                    ft.commit();
 //                }
-//            }
-//        }, 2000);
-
+//            });
+////                }
+////            }
+////        }, 2000);
+//        }else{
+//            Log.i(WEKA_TEST,  "unscussful scan");
+//        }
         return view;
 
     }
-    private void scanBLE() {
+    private boolean scanBLE(ViewGroup container,View view) {
         System.out.println("start scanning");
 //        handler.postDelayed(new Runnable() {
 //            @Override
@@ -255,8 +263,8 @@ public class NavigationFragment extends Fragment {
                                 Log.i("c_floor_check", "You are on floor : "+current_floor);
 
                                 switch (current_floor){
-                                    case 1:predictTheModelF1(current_floor);break;
-                                    case 2:predictTheModelF2(current_floor);break;
+                                    case 1:predictTheModelF1(current_floor,container,view);break;
+                                    case 2:predictTheModelF2(current_floor,container,view);break;
                                 }
 
                                 resultBle.clear();
@@ -292,12 +300,13 @@ public class NavigationFragment extends Fragment {
             }
 
 
+        return true;
         } else {
 
             scanning = false;
             Log.i("Log_scan_5", "scan finished" + scanning);
             btScanner.stopScan(leScanCallback);
-
+            return false;
         }
         //   handler.postDelayed((Runnable) this, 3000);
 
@@ -456,29 +465,30 @@ public class NavigationFragment extends Fragment {
 
        // return inflater.inflate(R.layout.fragment_navigation, container, false);
     }
-    private void predictTheModelF1(int current_floor) {
+    private void predictTheModelF1(int current_floor, ViewGroup container, View view) {
         try {
 
 
             //Toast.makeText(getApplicationContext(), "["+ attributeList+"]", Toast.LENGTH_SHORT).show();
             attributeList.clear();
             classVal.clear();
+            Attribute mac1 = new Attribute("mac1");
+            Attribute mac2 = new Attribute("mac2");
+            Attribute mac3 = new Attribute("mac3");
             Attribute mac4 = new Attribute("mac4");
             Attribute mac5 = new Attribute("mac5");
             Attribute mac6 = new Attribute("mac6");
             Attribute mac7 = new Attribute("mac7");
-            Attribute mac8 = new Attribute("mac8");
-            Attribute mac9 = new Attribute("mac9");
-            Attribute mac10 = new Attribute("mac10");
+
             Attribute magx = new Attribute("magx");
             Attribute magy = new Attribute("magy");
             Attribute magz = new Attribute("magz");
-            Attribute accx = new Attribute("accx");
-            Attribute accy = new Attribute("accy");
-            Attribute accz = new Attribute("accz");
-            Attribute rotx = new Attribute("rotx");
-            Attribute roty = new Attribute("roty");
-            Attribute rotz = new Attribute("rotz");
+//            Attribute accx = new Attribute("accx");
+//            Attribute accy = new Attribute("accy");
+//            Attribute accz = new Attribute("accz");
+//            Attribute rotx = new Attribute("rotx");
+//            Attribute roty = new Attribute("roty");
+//            Attribute rotz = new Attribute("rotz");
             Attribute orix = new Attribute("orix");
             Attribute oriy = new Attribute("oriy");
             Attribute oriz = new Attribute("oriz");
@@ -486,26 +496,35 @@ public class NavigationFragment extends Fragment {
 //                    @attribute grid {'15,1','15,0','14,1','13,1','13,0','12,0','11,0','11,1','12,1','12,2','12,3','12,4','12,5','12,6','12,7','11,7','11,6','11,5','11,4','11,3','11,2'}
 
 
-            classVal.add("8,54");
-            classVal.add("13,52");
-            classVal.add("10,54");
+            classVal.add("12,25");
+            classVal.add("11,25");
+            classVal.add("10,25");
+            classVal.add("9,25");
+            classVal.add("8,25");
+            classVal.add("8,24");
+            classVal.add("9,24");
+            classVal.add("9,23");
+            classVal.add("9,22");
+            classVal.add("9,21");
+            classVal.add("8,23");
+
             // Toast.makeText(getApplicationContext(), "["+ classVal+"]", Toast.LENGTH_SHORT).show();
+            attributeList.add(mac1);
+            attributeList.add(mac2);
+            attributeList.add(mac3);
             attributeList.add(mac4);
             attributeList.add(mac5);
             attributeList.add(mac6);
             attributeList.add(mac7);
-            attributeList.add(mac8);
-            attributeList.add(mac9);
-            attributeList.add(mac10);
             attributeList.add(magx);
             attributeList.add(magy);
             attributeList.add(magz);
-            attributeList.add(accx);
-            attributeList.add(accy);
-            attributeList.add(accz);
-            attributeList.add(rotx);
-            attributeList.add(roty);
-            attributeList.add(rotz);
+//            attributeList.add(accx);
+//            attributeList.add(accy);
+//            attributeList.add(accz);
+//            attributeList.add(rotx);
+//            attributeList.add(roty);
+//            attributeList.add(rotz);
             attributeList.add(orix);
             attributeList.add(oriy);
             attributeList.add(oriz);
@@ -524,22 +543,22 @@ public class NavigationFragment extends Fragment {
                 {
                     //-82,-78,-82,-67,-55,-31.637161,9.728535,-18.218353,0.500622,-0.512263,9.255263,-0.030765,-0.004506,-0.605709,1.296407,0.055211,-0.054038,'15,1'
 
-                    setValue(mac4, fixedMACBLE.get("3C:61:05:11:D1:D2"));//11
-                    setValue(mac5, fixedMACBLE.get("3C:61:05:14:AF:12"));//12
-                    setValue(mac6, fixedMACBLE.get("3C:61:05:11:D0:EE"));
-                    setValue(mac7, fixedMACBLE.get("AC:67:B2:3C:CC:1A"));
-                    setValue(mac8, fixedMACBLE.get("3C:61:05:11:C7:FE"));
-                    setValue(mac9, fixedMACBLE.get("3C:61:05:11:C8:8A"));//esp19
-                    setValue(mac10, fixedMACBLE.get("3C:61:05:14:B1:BA"));
+                    setValue(mac1, fixedMACBLE.get("AC:67:B2:3C:C6:46"));
+                    setValue(mac2, fixedMACBLE.get("3C:61:05:14:A7:C2"));
+                    setValue(mac3, fixedMACBLE.get("3C:61:05:14:B5:0A"));
+                    setValue(mac4, fixedMACBLE.get("3C:61:05:14:A7:72"));
+                    setValue(mac5, fixedMACBLE.get("E0:E2:E6:0D:49:76"));
+                    setValue(mac6, fixedMACBLE.get("E0:E2:E6:0D:39:FA"));
+                    setValue(mac7, fixedMACBLE.get("E0:E2:E6:0B:7D:7A"));
                     setValue(magx, magneticX);
                     setValue(magy, magneticY);
                     setValue(magz, magneticZ);
-                    setValue(accx, accelerometerX);
-                    setValue(accy, accelerometerY);
-                    setValue(accz, accelerometerZ);
-                    setValue(rotx, rotationX);
-                    setValue(roty, rotationY);
-                    setValue(rotz, rotationZ);
+//                    setValue(accx, accelerometerX);
+//                    setValue(accy, accelerometerY);
+//                    setValue(accz, accelerometerZ);
+//                    setValue(rotx, rotationX);
+//                    setValue(roty, rotationY);
+//                    setValue(rotz, rotationZ);
                     setValue(orix, orientation[0]);
                     setValue(oriy, orientation[1]);
                     setValue(oriz, orientation[2]);
@@ -605,7 +624,7 @@ public class NavigationFragment extends Fragment {
 
     }
 
-    private void predictTheModelF2(int current_floor) {
+    private void predictTheModelF2(int current_floor, ViewGroup container, View view) {
         try {
 
 
@@ -752,12 +771,35 @@ public class NavigationFragment extends Fragment {
             //need to find the floor also
             // int current_floor=checkTheFloor();
             Log.i("c_floor", "current_floor" +current_floor);
+            textView.setText("current floor");
 //            int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
 //            int room_no=dbmanager.fetchMyRoom(room_id_no);
 //            Log.i("c_floor", "You are near "+room_id_no+"\n Current location: "+room_no);
             // Toast.makeText(this,"You are near "+room_id_no+"\n Current location: "+room_no,Toast.LENGTH_SHORT).show();
             //setContentView(pixelGrid);
             btScanner.stopScan(leScanCallback);
+            textView1.setVisibility(View.VISIBLE);
+            dropdown.setVisibility(View.VISIBLE);
+            btn_nav.setVisibility(View.VISIBLE);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_spinner_item, floor);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            dropdown.setAdapter(adapter);
+
+
+            btn_nav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentManager fm = getFragmentManager();
+                    FragmentTransaction ft = fm.beginTransaction();
+                    SecondFragment llf = new SecondFragment();
+                    Bundle args = new Bundle();
+                    args.putString("spinnerValue", dropdown.getSelectedItem().toString());
+
+                    llf.setArguments(args);
+                    ft.replace(((ViewGroup) getView().getParent()).getId(), llf);
+                    ft.commit();
+                }
+            });
 //            Intent intent_explore = new Intent(getActivity().getApplicationContext(), StartNavigation.class);
 //            intent_explore.putExtra("initalXY",className);
 //            intent_explore.putExtra("cur_room_no", room_no);
@@ -833,5 +875,41 @@ public class NavigationFragment extends Fragment {
         BLE_FLOOR.put("E0:E2:E6:0D:39:FA",2);	//-ESP23 -[06]
         BLE_FLOOR.put("E0:E2:E6:0B:7D:7A",2);	//-ESP24 -[07]
 //        BLE_FLOOR.put("D0:5F:64:52:12:BB",4);//NODE1
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        switch (sensorEvent.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                accelerometerX = sensorEvent.values[0];
+                accelerometerY = sensorEvent.values[1];
+                accelerometerZ= sensorEvent.values[2];
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                magneticX = sensorEvent.values[0];
+                magneticY = sensorEvent.values[1];
+                magneticZ = sensorEvent.values[2];
+                break;
+            case Sensor.TYPE_LIGHT:
+                light = sensorEvent.values[0];
+                break;
+            case Sensor.TYPE_ROTATION_VECTOR:
+                rotationX = sensorEvent.values[0];
+                rotationY = sensorEvent.values[1];
+                rotationZ = sensorEvent.values[2];
+                break;
+            default:
+                break;
+        }
+
+        SensorManager.getRotationMatrix(rotation, inclination,
+                new float[] {accelerometerX, accelerometerY, accelerometerZ},
+                new float[] {magneticX, magneticY, magneticZ});
+        orientation = SensorManager.getOrientation(rotation, orientation);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 }

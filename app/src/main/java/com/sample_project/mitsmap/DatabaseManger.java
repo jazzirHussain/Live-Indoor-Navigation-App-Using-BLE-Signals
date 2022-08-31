@@ -20,6 +20,8 @@ public class DatabaseManger {
 
     public DatabaseManger(Context c) {
         this.context = c;
+        dbHelper = new DatabaseHelper(c);
+        Log.i("db_con",  "inside databse constructor");
 
     }
 
