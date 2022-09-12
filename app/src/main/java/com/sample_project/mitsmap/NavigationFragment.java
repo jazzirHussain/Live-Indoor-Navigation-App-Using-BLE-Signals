@@ -7,6 +7,7 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -36,6 +37,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -96,6 +98,8 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
     private static float[] inclination;
     private static float[] orientation;
     private List<Sensor> sensorList;
+
+
     private static int collectionCount=0;
     private Context mContext;
     static String rssi_old;
@@ -110,6 +114,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+     //   dbmanager=new DatabaseManger(getActivity());
     }
 
     @Override
@@ -123,13 +128,14 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             Bundle savedInstanceState)
     {
 
-        dbmanager=new DatabaseManger(mContext);
+
         decimalFormatter = new DecimalFormat("#");
         decimalFormatter.setMaximumFractionDigits(8);
         btManager = (BluetoothManager) getActivity().getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
         btAdapter = btManager.getAdapter();
         btScanner = btAdapter.getBluetoothLeScanner();
 
+        dbmanager=new DatabaseManger(getActivity().getApplicationContext());
         sensorManager = (SensorManager) getActivity().getApplicationContext().getSystemService(SENSOR_SERVICE);
         sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor : sensorList) {
@@ -146,6 +152,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
 
         View view = inflater.inflate(R.layout.fragment_navigation,
                 container, false);
+
 //        btn_location = view.findViewById(R.id.btn_my_location);
 //        btn_viewmaps=view.findViewById(R.id.btn_view_maps);
         textView=view.findViewById(R.id.tv_start);
@@ -574,9 +581,9 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             //  inst_co.setDataset(data);
             //Classifier cls_co;
             AssetManager assetManager = getContext().getAssets();
-            InputStream is = assetManager.open("model_4_ibk(3)_arranged.model");
+            InputStream is = assetManager.open("mgeorgeblock_floor1_j48.model");
             //previous model=updated_model4(j48).model
-            IBk cls_co = (IBk) weka.core.SerializationHelper.read(is);
+            J48 cls_co = (J48) weka.core.SerializationHelper.read(is);
 
             // IBk cls_co = (IBk) SerializationHelper.read(assetManager.open("iBK_combined_data.model"));
 
@@ -600,9 +607,9 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             //need to find the floor also
             // int current_floor=checkTheFloor();
             Log.i("c_floor", "current_floor" +current_floor);
-            int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
-            int room_no=dbmanager.fetchMyRoom(room_id_no);
-            Log.i("c_floor", "You are near "+room_id_no+"\n Current location: "+room_no);
+//            int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
+//            int room_no=dbmanager.fetchMyRoom(room_id_no);
+          //  Log.i("c_floor", "You are near "+room_id_no+"\n Current location: "+room_no);
             //Toast.makeText(this,"You are near "+room_id_no+"\n Current location: "+room_no,Toast.LENGTH_SHORT).show();
             //setContentView(pixelGrid);
             btScanner.stopScan(leScanCallback);
@@ -713,12 +720,6 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
                     setValue(magx, magneticX);
                     setValue(magy, magneticY);
                     setValue(magz, magneticZ);
-//                    setValue(accx, accelerometerX);
-//                    setValue(accy, accelerometerY);
-//                    setValue(accz, accelerometerZ);
-//                    setValue(rotx, rotationX);
-//                    setValue(roty, rotationY);
-//                    setValue(rotz, rotationZ);
                     setValue(orix, orientation[0]);
                     setValue(oriy, orientation[1]);
                     setValue(oriz, orientation[2]);
@@ -770,21 +771,36 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             Log.i("c_floor", result + "  --2-- " + className);
             //need to find the floor also
             // int current_floor=checkTheFloor();
-            Log.i("c_floor", "current_floor" +current_floor);
-            textView.setText("current floor");
-//            int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
-//            int room_no=dbmanager.fetchMyRoom(room_id_no);
-//            Log.i("c_floor", "You are near "+room_id_no+"\n Current location: "+room_no);
+            Log.i("c_floor", "current_floor" +className);
+
+            int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
+            int room_no=dbmanager.fetchMyRoom(room_id_no);
+            Log.i("c_floor", "You are near "+room_id_no+" ==>>Current location: "+room_no);
+            textView.setText(room_no+" - "+dbmanager.fetchRoomName(room_no));
+
+
+
             // Toast.makeText(this,"You are near "+room_id_no+"\n Current location: "+room_no,Toast.LENGTH_SHORT).show();
             //setContentView(pixelGrid);
             btScanner.stopScan(leScanCallback);
             textView1.setVisibility(View.VISIBLE);
             dropdown.setVisibility(View.VISIBLE);
             btn_nav.setVisibility(View.VISIBLE);
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_spinner_item, floor);
+            int[] pointsName=dbmanager.allRooms();
+            Log.i("All_rooms", Arrays.toString(pointsName));
+            Integer[] newArray = new Integer[pointsName.length];
+            ArrayList ae = new ArrayList<>();;
+            String[] rooms_with_name=new String[pointsName.length];
+            int i = 0;
+            for (int value : pointsName) {
+                newArray[i++] = Integer.valueOf(value);
+                ae.add(Integer.valueOf(value)+" - " +dbmanager.fetchRoomName(Integer.valueOf(value)));
+
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_spinner_item, ae);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             dropdown.setAdapter(adapter);
-
 
             btn_nav.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -794,6 +810,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
                     SecondFragment llf = new SecondFragment();
                     Bundle args = new Bundle();
                     args.putString("spinnerValue", dropdown.getSelectedItem().toString());
+                    args.putInt("start_point",room_no);
 
                     llf.setArguments(args);
                     ft.replace(((ViewGroup) getView().getParent()).getId(), llf);

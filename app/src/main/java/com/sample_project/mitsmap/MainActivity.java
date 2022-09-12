@@ -12,6 +12,7 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,7 +41,8 @@ AboutFragment aboutFragment=new AboutFragment();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         android10BluetoothPermission();
-        DatabaseManger dbmanager=new DatabaseManger(this);
+        DatabaseManger dbmanager=new DatabaseManger(MainActivity.this);
+
         bottomNavigationView=findViewById(R.id.bottom_navigation);
         getSupportFragmentManager().beginTransaction().replace(R.id.container,homeFragment).commit();
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {

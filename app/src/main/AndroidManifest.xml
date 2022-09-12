@@ -24,6 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".DijkstrasActivity">
+           </activity>
     </application>
 
 </manifest>

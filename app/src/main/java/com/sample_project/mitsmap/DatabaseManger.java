@@ -21,185 +21,186 @@ public class DatabaseManger {
     public DatabaseManger(Context c) {
         this.context = c;
         dbHelper = new DatabaseHelper(c);
-        Log.i("db_con",  "inside databse constructor");
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Log.i("db_check",  "inside databse constructor"+context);
 
     }
 
 
-    public void close() {
-        dbHelper.close();
-    }
-
-    //to fetch the detaild from building table to the spinner
-    public List<BuildingSpinner> fetch() {
-        List<BuildingSpinner> list = new ArrayList<BuildingSpinner>();
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getReadableDatabase();
-        String selectQuery = "SELECT  * FROM " + DatabaseHelper.TBL_BULDING;
-        Cursor cr = database.rawQuery(selectQuery, null);
-        while (cr.moveToNext()) {
-            list.add(new BuildingSpinner(cr.getInt(0), cr.getString(1)));
-        }
-        // closing connection
-        cr.close();
-        //  database.close();
-        // returning lables
-
-        return list;
-    }
-
-    //insert the room details to the table
-    public boolean insertDataRoom(String room_name, int room_no, int floor_id) {
-        dbHelper = new DatabaseHelper(context);
-        database_insert = dbHelper.getWritableDatabase();
-        ContentValues contentValues=new ContentValues();
-        contentValues.put(DatabaseHelper.ROOM_NAME,room_name);
-
-        contentValues.put(DatabaseHelper.ROOM_NO,room_no);
-        contentValues.put(DatabaseHelper.FLOOR_ID,floor_id);
-
-        Long result=database_insert.insert(DatabaseHelper.TBL_ROOM,null,contentValues);
-        if(result==-1 ){
-            Log.i("LOG_ROOM","Unscucessfully inserted");
-            return false;
-        }else{
-            Log.i("LOG_ROOM","Succesfully inserted");
-            return true;
-        }
-    }
-    //check for the room id based on the room number
-    public ArrayList<Integer> fetchRoomId(int room_num) {
-        int room_id=0;
-        ArrayList<Integer> arList = new ArrayList<>();
-        boolean flag=false;
-        //List<BuildingSpinner> list = new ArrayList<BuildingSpinner>();
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getReadableDatabase();
-        String selectQuery =  "SELECT "+DatabaseHelper.ROOM_ID+" FROM "
-                + DatabaseHelper.TBL_ROOM +" WHERE "+DatabaseHelper.ROOM_NO+" = "
-                + room_num ;
-        Cursor cr = database.rawQuery(selectQuery, null);
-        while (cr.moveToNext()) {
-
-            int index1=cr.getColumnIndex(DatabaseHelper.ROOM_ID);
-            arList.add(cr.getInt(index1));
-        }
-        // closing connection
-        cr.close();
-        //  database.close();
-        // returning lables
-     return  arList;
-    }
-
-    public boolean deleteGridData(int room_id) {
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getWritableDatabase();
-        int i=database.delete(DatabaseHelper.TBL_GRID_ROOM, DatabaseHelper.ROOM_ID + "=" + room_id, null);
-        // close();
-        if(i==-1){
-            return false;
-        }else{
-            return true;
-        }
-    }
-    public boolean deleteRoomData(int room_num) {
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getWritableDatabase();
-        int i=database.delete(DatabaseHelper.TBL_ROOM, DatabaseHelper.ROOM_ID + "=" + room_num, null);
-        // close();
-        if(i==-1){
-            return false;
-        }else{
-            return true;
-        }
-    }
-    //fetch last room id
-    public int fetchLastRoomId() {
-        int room_id=0;
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getReadableDatabase();
-        String selectQuery=   "SELECT "+DatabaseHelper.ROOM_ID+" FROM "
-                + DatabaseHelper.TBL_ROOM +" ORDER BY "+DatabaseHelper.ROOM_ID+" DESC LIMIT 1 " ;
-        Cursor cr=database.rawQuery(selectQuery, null);
-        if (cr.moveToNext()) {
-
-            int index1=cr.getColumnIndex(DatabaseHelper.ROOM_ID);
-            room_id=cr.getInt(index1);
-
-
-        }
-        cr.close();
-
-        return room_id;
-    }
-
-    //insert the room-grids mapping
-    public boolean insertGridRoomMapping(int room_no, String grid_no) {
-        dbHelper = new DatabaseHelper(context);
-        database_insert = dbHelper.getWritableDatabase();
-        ContentValues contentValues=new ContentValues();
-        contentValues.put(DatabaseHelper.ROOM_ID,room_no);
-        contentValues.put(DatabaseHelper.GRID_NO,grid_no);
-
-        Long result=database_insert.insert(DatabaseHelper.TBL_GRID_ROOM,null,contentValues);
-        if(result==-1 ){
-            Log.i("LOG_ROOM","Unscucessfully inserted");
-            return false;
-        }else{
-            Log.i("LOG_ROOM","Succesfully inserted");
-            return true;
-        }
-    }
-
-
-    public ArrayList fetchXYWaypoints(int floor) {
-        floor=floor+1;
-        String search= String.valueOf(floor)+'%';
-        Log.i("WAY_ARRAY_SE", search);
-        ArrayList<String> arList = new ArrayList<>();
-        boolean flag=false;
-        //List<BuildingSpinner> list = new ArrayList<BuildingSpinner>();
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getReadableDatabase();
-        String selectQuery =  "SELECT * FROM "
-                + DatabaseHelper.TBL_WAYPOINTS +" WHERE "+DatabaseHelper.ROOM_NO
-                + " LIKE '" + floor + "%'" ;
-        Cursor cr = database.rawQuery(selectQuery, null);
-        while (cr.moveToNext()) {
-
-            int index1=cr.getColumnIndex(DatabaseHelper.X_VALUE);
-            int index2=cr.getColumnIndex(DatabaseHelper.Y_VALUE);
-           String x_y_value=cr.getInt(index1)+","+cr.getInt(index2);
-           arList.add(x_y_value);
-        }
-        // closing connection
-        cr.close();
-        //  database.close();
-        // returning lables
-        Log.i("WAY_ARRAY", Arrays.toString(arList.toArray()));
-        return  arList;
-    }
-
-    public Point fetchRoomWayPoint(int room_num) {
-        Point xy_value = null;
-        int room_id=0;
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getReadableDatabase();
-        String selectQuery =  "SELECT * FROM "
-                + DatabaseHelper.TBL_WAYPOINTS +" WHERE "+DatabaseHelper.ROOM_NO+" = "
-                + room_num ;
-        Cursor cr = database.rawQuery(selectQuery, null);
-        while (cr.moveToNext()) {
-
-            int index1=cr.getColumnIndex(DatabaseHelper.X_VALUE);
-            int index2=cr.getColumnIndex(DatabaseHelper.Y_VALUE);
-            xy_value=new Point(cr.getInt(index1),cr.getInt(index2));
-        }
-        // closing connection
-        cr.close();
-        return xy_value;
-    }
-
+//    public void close() {
+//        dbHelper.close();
+//    }
+//
+//    //to fetch the detaild from building table to the spinner
+//    public List<BuildingSpinner> fetch() {
+//        List<BuildingSpinner> list = new ArrayList<BuildingSpinner>();
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getReadableDatabase();
+//        String selectQuery = "SELECT  * FROM " + DatabaseHelper.TBL_BULDING;
+//        Cursor cr = database.rawQuery(selectQuery, null);
+//        while (cr.moveToNext()) {
+//            list.add(new BuildingSpinner(cr.getInt(0), cr.getString(1)));
+//        }
+//        // closing connection
+//        cr.close();
+//        //  database.close();
+//        // returning lables
+//
+//        return list;
+//    }
+//
+//    //insert the room details to the table
+//    public boolean insertDataRoom(String room_name, int room_no, int floor_id) {
+//        dbHelper = new DatabaseHelper(context);
+//        database_insert = dbHelper.getWritableDatabase();
+//        ContentValues contentValues=new ContentValues();
+//        contentValues.put(DatabaseHelper.ROOM_NAME,room_name);
+//
+//        contentValues.put(DatabaseHelper.ROOM_NO,room_no);
+//        contentValues.put(DatabaseHelper.FLOOR_ID,floor_id);
+//
+//        Long result=database_insert.insert(DatabaseHelper.TBL_ROOM,null,contentValues);
+//        if(result==-1 ){
+//            Log.i("LOG_ROOM","Unscucessfully inserted");
+//            return false;
+//        }else{
+//            Log.i("LOG_ROOM","Succesfully inserted");
+//            return true;
+//        }
+//    }
+//    //check for the room id based on the room number
+//    public ArrayList<Integer> fetchRoomId(int room_num) {
+//        int room_id=0;
+//        ArrayList<Integer> arList = new ArrayList<>();
+//        boolean flag=false;
+//        //List<BuildingSpinner> list = new ArrayList<BuildingSpinner>();
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getReadableDatabase();
+//        String selectQuery =  "SELECT "+DatabaseHelper.ROOM_ID+" FROM "
+//                + DatabaseHelper.TBL_ROOM +" WHERE "+DatabaseHelper.ROOM_NO+" = "
+//                + room_num ;
+//        Cursor cr = database.rawQuery(selectQuery, null);
+//        while (cr.moveToNext()) {
+//
+//            int index1=cr.getColumnIndex(DatabaseHelper.ROOM_ID);
+//            arList.add(cr.getInt(index1));
+//        }
+//        // closing connection
+//        cr.close();
+//        //  database.close();
+//        // returning lables
+//     return  arList;
+//    }
+//
+//    public boolean deleteGridData(int room_id) {
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getWritableDatabase();
+//        int i=database.delete(DatabaseHelper.TBL_GRID_ROOM, DatabaseHelper.ROOM_ID + "=" + room_id, null);
+//        // close();
+//        if(i==-1){
+//            return false;
+//        }else{
+//            return true;
+//        }
+//    }
+//    public boolean deleteRoomData(int room_num) {
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getWritableDatabase();
+//        int i=database.delete(DatabaseHelper.TBL_ROOM, DatabaseHelper.ROOM_ID + "=" + room_num, null);
+//        // close();
+//        if(i==-1){
+//            return false;
+//        }else{
+//            return true;
+//        }
+//    }
+//    //fetch last room id
+//    public int fetchLastRoomId() {
+//        int room_id=0;
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getReadableDatabase();
+//        String selectQuery=   "SELECT "+DatabaseHelper.ROOM_ID+" FROM "
+//                + DatabaseHelper.TBL_ROOM +" ORDER BY "+DatabaseHelper.ROOM_ID+" DESC LIMIT 1 " ;
+//        Cursor cr=database.rawQuery(selectQuery, null);
+//        if (cr.moveToNext()) {
+//
+//            int index1=cr.getColumnIndex(DatabaseHelper.ROOM_ID);
+//            room_id=cr.getInt(index1);
+//
+//
+//        }
+//        cr.close();
+//
+//        return room_id;
+//    }
+//
+//    //insert the room-grids mapping
+//    public boolean insertGridRoomMapping(int room_no, String grid_no) {
+//        dbHelper = new DatabaseHelper(context);
+//        database_insert = dbHelper.getWritableDatabase();
+//        ContentValues contentValues=new ContentValues();
+//        contentValues.put(DatabaseHelper.ROOM_ID,room_no);
+//        contentValues.put(DatabaseHelper.GRID_NO,grid_no);
+//
+//        Long result=database_insert.insert(DatabaseHelper.TBL_GRID_ROOM,null,contentValues);
+//        if(result==-1 ){
+//            Log.i("LOG_ROOM","Unscucessfully inserted");
+//            return false;
+//        }else{
+//            Log.i("LOG_ROOM","Succesfully inserted");
+//            return true;
+//        }
+//    }
+//
+//
+//    public ArrayList fetchXYWaypoints(int floor) {
+//        floor=floor+1;
+//        String search= String.valueOf(floor)+'%';
+//        Log.i("WAY_ARRAY_SE", search);
+//        ArrayList<String> arList = new ArrayList<>();
+//        boolean flag=false;
+//        //List<BuildingSpinner> list = new ArrayList<BuildingSpinner>();
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getReadableDatabase();
+//        String selectQuery =  "SELECT * FROM "
+//                + DatabaseHelper.TBL_WAYPOINTS +" WHERE "+DatabaseHelper.ROOM_NO
+//                + " LIKE '" + floor + "%'" ;
+//        Cursor cr = database.rawQuery(selectQuery, null);
+//        while (cr.moveToNext()) {
+//
+//            int index1=cr.getColumnIndex(DatabaseHelper.X_VALUE);
+//            int index2=cr.getColumnIndex(DatabaseHelper.Y_VALUE);
+//           String x_y_value=cr.getInt(index1)+","+cr.getInt(index2);
+//           arList.add(x_y_value);
+//        }
+//        // closing connection
+//        cr.close();
+//        //  database.close();
+//        // returning lables
+//        Log.i("WAY_ARRAY", Arrays.toString(arList.toArray()));
+//        return  arList;
+//    }
+//
+//    public Point fetchRoomWayPoint(int room_num) {
+//        Point xy_value = null;
+//        int room_id=0;
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getReadableDatabase();
+//        String selectQuery =  "SELECT * FROM "
+//                + DatabaseHelper.TBL_WAYPOINTS +" WHERE "+DatabaseHelper.ROOM_NO+" = "
+//                + room_num ;
+//        Cursor cr = database.rawQuery(selectQuery, null);
+//        while (cr.moveToNext()) {
+//
+//            int index1=cr.getColumnIndex(DatabaseHelper.X_VALUE);
+//            int index2=cr.getColumnIndex(DatabaseHelper.Y_VALUE);
+//            xy_value=new Point(cr.getInt(index1),cr.getInt(index2));
+//        }
+//        // closing connection
+//        cr.close();
+//        return xy_value;
+//    }
+//
     public int fetchXWayPointNumber(int room_no) {
         int xy_value = 0;
         int room_id=0;
@@ -230,6 +231,7 @@ public class DatabaseManger {
                 + DatabaseHelper.TBL_WAYPOINTS_NUMBER +" WHERE "+DatabaseHelper.WAY_REF_ID+" = "
                 + selected_pathpoint +" AND "+DatabaseHelper.ROOM_NO
                 + " LIKE '" + floor + "%'" ;
+
         Cursor cr = database.rawQuery(selectQuery, null);
         while (cr.moveToNext()) {
 
@@ -303,23 +305,23 @@ public class DatabaseManger {
         cr.close();
         return xy_value;
     }
-
-    public int[] allWayPoints() {
-        int[] list = new int[200];
-        int i=0;
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getReadableDatabase();
-        String selectQuery = "SELECT  * FROM " + DatabaseHelper.TBL_WAYPOINTS;
-        Cursor cr = database.rawQuery(selectQuery, null);
-        while (cr.moveToNext()) {
-
-            int index1=cr.getColumnIndex(DatabaseHelper.ROOM_NO);
-            list[i]=cr.getInt(index1);
-            i++;
-        }
-        cr.close();
-        return list;
-    }
+//
+//    public int[] allWayPoints() {
+//        int[] list = new int[200];
+//        int i=0;
+//        dbHelper = new DatabaseHelper(context);
+//        database = dbHelper.getReadableDatabase();
+//        String selectQuery = "SELECT  * FROM " + DatabaseHelper.TBL_WAYPOINTS;
+//        Cursor cr = database.rawQuery(selectQuery, null);
+//        while (cr.moveToNext()) {
+//
+//            int index1=cr.getColumnIndex(DatabaseHelper.ROOM_NO);
+//            list[i]=cr.getInt(index1);
+//            i++;
+//        }
+//        cr.close();
+//        return list;
+//    }
     public int[] allRooms() {
 
         int i=0;

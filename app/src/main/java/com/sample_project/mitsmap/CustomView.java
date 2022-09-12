@@ -50,27 +50,7 @@ public class CustomView extends View {
     private static int counter=0;
     private static int start_floor_num=0,dest_floor_num=0,start_room_vertex=0,dest_room_vertex=0;
     private static String destBuilding;
-    private final int[][] adjacencyMatrix_floor1 = {
-                    {0, 1, 0, 0, 0, 0, 0, 0},
-                    {1, 0, 1, 1, 0, 0, 0, 0},
-                    {0, 1, 0, 0, 0, 0, 0, 0},
-                    {0, 1, 0, 0, 1, 1, 0, 0},
-                    {0, 0, 0, 1, 0, 0, 0, 1},
-                    {0, 0, 0, 1, 0, 0, 1, 0},
-                    {0, 0, 0, 0, 0, 1, 0, 0},
-                    {0, 0, 0, 0, 1, 0, 0, 0}
 
-    };
-    private final int[][] adjacencyMatrix_floor2={
-            {0, 1, 0, 0, 0, 0},
-            {1, 0, 1, 0, 0, 0},
-            {0, 1, 0, 1, 1, 0},
-            {0, 0, 1, 0, 0, 0},
-            {0, 0, 1, 0, 0, 1},
-            {0, 0, 0, 0, 1, 0}
-
-
-    };
     private final static int[][] WAY_POINTS= {
             {404, 657},
             {369, 657},
@@ -191,104 +171,104 @@ public class CustomView extends View {
 
         float STROKE_WIDTH = screenWidthPixel * 0.0080f;
         bluePaint.setStrokeWidth(STROKE_WIDTH);
-      // canvas.save();
-if(counter==0){
-    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.reception_blue);
-    try {
-        bitmap_created = BitmapCreation(bitmap2);
-    } catch (JSONException e) {
-        e.printStackTrace();
-    }
-    canvas.drawBitmap(bitmap_created, getMatrix(), null);
-    converted_way_points=new int[WAY_POINTS.length][2];
-    changeWayPointsToDeviceDimension(WAY_POINTS);
-
-    Log.i("PATH", "Calling dij"+getDestRoomVertex());
-    DijkstrasAlgorithm.dijkstra(adjacencyMatrix_floor1, 0, 7);
-    selected_pathpoints_new=Path_Result.getIntegerPath();
-    Log.i("PATH", Arrays.toString(selected_pathpoints_new));
-
-    sX=converted_way_points[selected_pathpoints_new[0]][0];
-    sY=converted_way_points[selected_pathpoints_new[0]][1];
-    canvas.drawCircle(sX,sY, 20, greePaint);
-    for(int i=1;i<selected_pathpoints_new.length;i++){
-        Log.i("selected","eX= "+eX+"eY="+eY);
-        eX=converted_way_points[selected_pathpoints_new[i]][0];
-        eY=converted_way_points[selected_pathpoints_new[i]][1];
-        canvas.drawLine(sX,sY,eX,eY,bluePaint);
-
-        sX=eX;
-        sY=eY;
-    }
-    greePaint.setColor(Color.RED);
-    canvas.drawCircle(eX,eY, 30, greePaint);
+       canvas.save();
+//if(counter==0){
+//    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.reception_blue);
+//    try {
+//        bitmap_created = BitmapCreation(bitmap2);
+//    } catch (JSONException e) {
+//        e.printStackTrace();
+//    }
+//    canvas.drawBitmap(bitmap_created, getMatrix(), null);
+//    converted_way_points=new int[WAY_POINTS.length][2];
+//    changeWayPointsToDeviceDimension(WAY_POINTS);
 //
+//    Log.i("PATH", "Calling dij"+getDestRoomVertex());
+//    DijkstrasAlgorithm.dijkstra(adjacencyMatrix_floor1, 0, 7);
+//    selected_pathpoints_new=Path_Result.getIntegerPath();
+//    Log.i("PATH", Arrays.toString(selected_pathpoints_new));
 //
-    Log.i("Values","overlayX= "+eX+"overlayY= "+eY);
-    //canvas.drawBitmap(overlaybitmap, eX-width/5,10+eY-height/2 ,null);
-    Log.i("Values1", DateFormat.getDateTimeInstance().format(new Date()));
+//    sX=converted_way_points[selected_pathpoints_new[0]][0];
+//    sY=converted_way_points[selected_pathpoints_new[0]][1];
+//    canvas.drawCircle(sX,sY, 20, greePaint);
+//    for(int i=1;i<selected_pathpoints_new.length;i++){
+//        Log.i("selected","eX= "+eX+"eY="+eY);
+//        eX=converted_way_points[selected_pathpoints_new[i]][0];
+//        eY=converted_way_points[selected_pathpoints_new[i]][1];
+//        canvas.drawLine(sX,sY,eX,eY,bluePaint);
 //
-//
+//        sX=eX;
+//        sY=eY;
+//    }
+//    greePaint.setColor(Color.RED);
+//    canvas.drawCircle(eX,eY, 30, greePaint);
 ////
-    Path_Result.refreshPath();
-    Arrays.fill(selected_pathpoints_new,0);
-    counter=1;
-    Handler handler = new Handler();
-    handler.postDelayed(new Runnable() {
-        public void run() {
-            if(this!=null ){
-                Log.i("Values3", "Message");
-                invalidate();
-
-            }
-        }
-    }, 6000);
-}else if(counter==1){
-    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.second_floor_blue);
-    try {
-        bitmap_created = BitmapCreation(bitmap2);
-    } catch (JSONException e) {
-        e.printStackTrace();
-    }
-    canvas.drawBitmap(bitmap_created, getMatrix(), null);
-    converted_way_points=new int[WAY_POINTS_FLOOR2.length][2];
-    changeWayPointsToDeviceDimension(WAY_POINTS_FLOOR2);
-
-    Log.i("PATH", "Calling dij"+getDestRoomVertex());
-    DijkstrasAlgorithm.dijkstra(adjacencyMatrix_floor2, 0, getDestRoomVertex());
-    selected_pathpoints_new=Path_Result.getIntegerPath();
-    Log.i("PATH", Arrays.toString(selected_pathpoints_new));
-
-    sX=converted_way_points[selected_pathpoints_new[0]][0];
-    sY=converted_way_points[selected_pathpoints_new[0]][1];
-    greePaint.setColor(Color.GREEN);
-    canvas.drawCircle(sX,sY, 20, greePaint);
-    for(int i=1;i<selected_pathpoints_new.length;i++){
-        Log.i("selected","eX= "+eX+"eY="+eY);
-        eX=converted_way_points[selected_pathpoints_new[i]][0];
-        eY=converted_way_points[selected_pathpoints_new[i]][1];
-        canvas.drawLine(sX,sY,eX,eY,bluePaint);
-
-        sX=eX;
-        sY=eY;
-    }
-    greePaint.setColor(Color.RED);
-    canvas.drawCircle(eX,eY, 30, greePaint);
-    counter=0;
-    sX=0;sY=0;eX=0;eY=0;
-    greePaint.setColor(Color.GREEN);
+////
+//    Log.i("Values","overlayX= "+eX+"overlayY= "+eY);
+//    //canvas.drawBitmap(overlaybitmap, eX-width/5,10+eY-height/2 ,null);
+//    Log.i("Values1", DateFormat.getDateTimeInstance().format(new Date()));
+////
+////
+//////
+//    Path_Result.refreshPath();
+//    Arrays.fill(selected_pathpoints_new,0);
+//    counter=1;
+//    Handler handler = new Handler();
+//    handler.postDelayed(new Runnable() {
+//        public void run() {
+//            if(this!=null ){
+//                Log.i("Values3", "Message");
+//                invalidate();
+//
+//            }
+//        }
+//    }, 6000);
+//}else if(counter==1){
+//    bitmap2= BitmapFactory.decodeResource(getResources(), R.drawable.second_floor_blue);
+//    try {
+//        bitmap_created = BitmapCreation(bitmap2);
+//    } catch (JSONException e) {
+//        e.printStackTrace();
+//    }
+//    canvas.drawBitmap(bitmap_created, getMatrix(), null);
+//    converted_way_points=new int[WAY_POINTS_FLOOR2.length][2];
+//    changeWayPointsToDeviceDimension(WAY_POINTS_FLOOR2);
+//
+//    Log.i("PATH", "Calling dij"+getDestRoomVertex());
+//    DijkstrasAlgorithm.dijkstra(adjacencyMatrix_floor2, 0, getDestRoomVertex());
+//    selected_pathpoints_new=Path_Result.getIntegerPath();
+//    Log.i("PATH", Arrays.toString(selected_pathpoints_new));
+//
+//    sX=converted_way_points[selected_pathpoints_new[0]][0];
+//    sY=converted_way_points[selected_pathpoints_new[0]][1];
+//    greePaint.setColor(Color.GREEN);
+//    canvas.drawCircle(sX,sY, 20, greePaint);
+//    for(int i=1;i<selected_pathpoints_new.length;i++){
+//        Log.i("selected","eX= "+eX+"eY="+eY);
+//        eX=converted_way_points[selected_pathpoints_new[i]][0];
+//        eY=converted_way_points[selected_pathpoints_new[i]][1];
+//        canvas.drawLine(sX,sY,eX,eY,bluePaint);
+//
+//        sX=eX;
+//        sY=eY;
+//    }
+//    greePaint.setColor(Color.RED);
+//    canvas.drawCircle(eX,eY, 30, greePaint);
+//    counter=0;
+//    sX=0;sY=0;eX=0;eY=0;
+//    greePaint.setColor(Color.GREEN);
+////
+////
+//    Log.i("Values","overlayX= "+eX+"overlayY= "+eY);
+//    //canvas.drawBitmap(overlaybitmap, eX-width/5,10+eY-height/2 ,null);
+//    Log.i("Values1", DateFormat.getDateTimeInstance().format(new Date()));
+//}
+//        Path_Result.refreshPath();
+//        Arrays.fill(selected_pathpoints_new,0);
+//
+////        try {
 //
 //
-    Log.i("Values","overlayX= "+eX+"overlayY= "+eY);
-    //canvas.drawBitmap(overlaybitmap, eX-width/5,10+eY-height/2 ,null);
-    Log.i("Values1", DateFormat.getDateTimeInstance().format(new Date()));
-}
-        Path_Result.refreshPath();
-        Arrays.fill(selected_pathpoints_new,0);
-
-//        try {
-
-
 
     }
     @Override
