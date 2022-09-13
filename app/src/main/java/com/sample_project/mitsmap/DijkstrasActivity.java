@@ -68,6 +68,7 @@ static  boolean startscan=false;
     private static float[] inclination;
     private static float[] orientation;
     private List<Sensor> sensorList;
+    private String display_msg="";
 //file
 private static final String FILE_NAME = "error_analysis.txt";
 private static int datacollector=1;
@@ -195,7 +196,7 @@ private static int datacollector=1;
         dest_floor=preferences.getInt("Dest_Floor",0);
         stop_room=preferences.getInt("destination_location",0);
         dest_room_no=preferences.getInt("Destination_Room",0);
-        Log.i("Dest_sh2", "source floor="+source_floor+"des_floor" + dest_floor+" stop room = "+stop_room);
+        Log.i("Dest_sh_result", "source floor="+source_floor+"des_floor" + dest_floor+" stop room = "+stop_room);
 
         dbmanager=new DatabaseManger(this);
         decimalFormatter = new DecimalFormat("#");
@@ -217,10 +218,10 @@ private static int datacollector=1;
         Log.d(WEKA_TEST,  "before button");
         gridRoom= new DijkstrasLiveView(this);
        // gridRoom.setGridValue(intent.getStringExtra("initalXY"));
-        if(source_floor==1){
+        if(floor==1){
             gridRoom.setNumColumns(15);
             gridRoom.setNumRows(31);
-        }else if(dest_floor==2){
+        }else if(floor==2){
             gridRoom.setNumColumns(10);
             gridRoom.setNumRows(30);
         }
@@ -326,6 +327,7 @@ private static int datacollector=1;
     protected void onPause() {
         super.onPause();
         btScanner.stopScan(leScanCallback);
+
         sensorManager.unregisterListener(this);
     }
     private void scanBLE() {
@@ -564,14 +566,16 @@ private static int datacollector=1;
 
 //                if(room_no==dest_room_no || !startscan && inital>1  ){
                 if(room_no==dest_room_no ){
-                    Log.i("inside_if4"," Room no="+room_no+" Dest_room_no="+dest_room_no+" inital="+inital+"start_scan="+startscan);
+                    Log.i("nav_complete"," Room no="+room_no+" Dest_room_no="+dest_room_no+" inital="+inital+"start_scan="+startscan);
                     setContentView(gridRoom);
                    // Toast.makeText(this,"Hurry, you reached the destination!!!",Toast.LENGTH_SHORT).show();
                     navigation_status=false;
                    // startscan=false;
+                    if(dest_room_no==5)
+                        display_msg=ConstantsValue.proom_msg;
                     btScanner.stopScan(leScanCallback);
                     alertDialogBuilder.setTitle("Navigation Completed");
-                    alertDialogBuilder.setMessage("You reached at the destination");
+                    alertDialogBuilder.setMessage("You reached at the destination"+display_msg);
                     alertDialogBuilder.setCancelable(false);
                     alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
@@ -594,6 +598,7 @@ private static int datacollector=1;
                    // Toast.makeText(this,"You reached at the lift . Please go "+direction+"  to reach your destination room on floor number " +dest_floor,Toast.LENGTH_SHORT).show();
                     //navigation_status=false;
                     //setContentView(gridRoom);
+
                     btScanner.stopScan(leScanCallback);
                     setContentView(gridRoom);
                     alertDialogBuilder.setTitle("Floor Change");
@@ -644,7 +649,7 @@ private static int datacollector=1;
                             DijkstrasAlgorithm.dijkstra(Adjacency_VARIABLE.get_adjacency_matrix(dest_floor), start_vertex, stop_room);
                             // Path_Result myPath = new Path_Result();
                             selected_pathpoints_new = Path_Result.myPath;
-                            Log.i("selected_path", Arrays.toString(selected_pathpoints_new));
+                            Log.i("param_selected_path", Arrays.toString(selected_pathpoints_new)+" floor number="+dest_floor);
                             Path_Result.refreshPath();
                             pathpointsselected_new = new int[selected_pathpoints_new.length][2];
                             roomsinpath_new=new int[selected_pathpoints_new.length];
@@ -835,23 +840,32 @@ private static int datacollector=1;
             // pixelGrid.setGridValue(className);
             gridRoom.setGridValue(className);
             Log.d(WEKA_TEST, result + "  --2-- " + className);
-
+            Log.i("model","entered in predictTheModelF2 and predicted "+className);
            // Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME,Toast.LENGTH_LONG).show();
             Log.i("floor2_status", "dest_floor" +floor_num);
             int room_id_no=dbmanager.fetchNearByRoom(className,floor_num);
             int room_no=dbmanager.fetchMyRoom(room_id_no);
+
+            Log.i("floor2_status_room", "room_id_no= " +room_id_no+" and room_no= "+room_no);
             //if room_no is not in the current floor plot the previous position.
             className=null;
-            Log.d("last_room",  selected_rooms[selected_rooms.length-1]+ "and room_no= "+room_no);
+            Log.d("last_room_F2",  selected_rooms[selected_rooms.length-1]+ "and room_no= "+room_no);
             Log.i("if_case_floor2","Selected rooms on path"+ Arrays.toString(selected_rooms)+" Room no="+room_no+" Dest_room_no="+dest_room_no+" Stop room="+stop_room);
             if(selected_rooms[selected_rooms.length-1]==room_no){
                 if(room_no==dest_room_no){
                     setContentView(gridRoom);
-                    Toast.makeText(this,"Hurry, you reached the destination!!!", Toast.LENGTH_SHORT).show();
+                    Log.i("nav_complete_f2"," Room no="+room_no+" Dest_room_no="+dest_room_no+" inital="+inital+"start_scan="+startscan);
+
+                    // Toast.makeText(this,"Hurry, you reached the destination!!!", Toast.LENGTH_SHORT).show();
                     navigation_status=false;
-                    btScanner.stopScan(leScanCallback);alertDialogBuilder.setTitle("Floor Change");
+                    btScanner.stopScan(leScanCallback);
+//                    alertDialogBuilder.setTitle("Floor Change");
+                    if(dest_room_no==107)
+                        display_msg=ConstantsValue.proom_msg;
+                    else if(dest_room_no==106)
+                        display_msg=ConstantsValue.officeroom_msg;
                     alertDialogBuilder.setTitle("Navigation Completed");
-                    alertDialogBuilder.setMessage("You reached at the destination");
+                    alertDialogBuilder.setMessage("You reached at the destination."+display_msg);
                     alertDialogBuilder.setCancelable(false);
                     alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override

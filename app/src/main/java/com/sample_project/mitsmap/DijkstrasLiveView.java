@@ -100,7 +100,7 @@ public class DijkstrasLiveView extends View {
         try{
             switch(DijkstrasActivity.getFloorNum()){
                 case 1:  bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.reception_blue);
-                    rot_angle=0;
+                    rot_angle=270;
                     sign_value=false;
                     break;
             case 2:  bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.second_floor_blue);
@@ -233,7 +233,7 @@ public class DijkstrasLiveView extends View {
                     if (cellChecked[i][j]) {
                         Log.i("grid_val", "["+i+","+j+"] "+ String.valueOf(cellChecked[i][j])+"----->>"+java.time.LocalTime.now()  );
 //
-                        drawArrow(canvas,i*cellWidth,j*cellHeight);
+                        drawArrow(canvas,(i*cellWidth)+(cellWidth/2),(j*cellHeight)+(cellWidth/2));
                         cellChecked[i][j]=false;
                     }
                 }
@@ -269,14 +269,20 @@ public class DijkstrasLiveView extends View {
                 end_x=rotateX180(end_x);
                 end_y=rotateY180(end_y);
             }
-            canvas.drawCircle(start_x*cellWidth,start_y*(cellHeight),15,greePaint);
-            canvas.drawCircle(end_x*cellWidth,end_y*(cellHeight),18,redPaint);
+            canvas.drawCircle((start_x*cellWidth)+(cellWidth/2),(start_y*cellHeight)+(cellHeight/2),15,greePaint);
+            canvas.drawCircle((end_x*cellWidth)+(cellWidth/2),(end_y*cellHeight)+(cellHeight/2),18,redPaint);
 //        }
 
 
     }
 
     private void drawResultPath(Canvas canvas, float cellWidth, float cellHeight) {
+      //  cellWidth=cellWidth+(cellWidth/2);
+
+//        Log.i("cellw_old", cellWidth+"");
+//        Log.i("cellh_old", cellHeight+"");
+//        cellHeight= (float) (cellHeight+0.5);
+//        cellWidth= (float) (cellWidth+0.5);
 
             for(int i=1;i<DijkstrasActivity.arrayReceived.length;i++)
             {
@@ -284,6 +290,10 @@ public class DijkstrasLiveView extends View {
                 int x2=DijkstrasActivity.arrayReceived[i][0];
                 int y1=DijkstrasActivity.arrayReceived[i-1][1];
                 int y2=DijkstrasActivity.arrayReceived[i][1];
+                Log.i("cellx1", x1+"");
+                Log.i("celly1", y1+"");
+                Log.i("cellx2", x2+"");
+                Log.i("celly2", y2+"");
                 Log.i("c_b_grid_valx1", (x1)*cellWidth+"");
                 Log.i("c_b_grid_valx1", (y1)*cellHeight+"");
                 Log.i("c_b_grid_valx1", (x2)*cellWidth+"");
@@ -299,7 +309,8 @@ public class DijkstrasLiveView extends View {
                 Log.i("c_a_grid_valx1", (y1)*cellHeight+"");
                 Log.i("c_a_grid_valx1", (x2)*cellWidth+"");
                 Log.i("c_a_grid_valx1", (y2)*cellHeight+"");
-                canvas.drawLine((x1)*cellWidth,(y1)*cellHeight,(x2)*cellWidth,(y2)*cellHeight,redPaint);
+                canvas.drawLine(((x1)*cellWidth)+(cellWidth/2),((y1)*cellHeight)+(cellHeight/2),((x2)*cellWidth)+(cellWidth/2),((y2)*cellHeight)+(cellHeight/2),redPaint);
+
             }
 
 

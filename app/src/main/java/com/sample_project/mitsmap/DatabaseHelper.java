@@ -45,13 +45,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static  final String INSERT_VALUES_GRID_ROOM= "INSERT INTO "+ TBL_GRID_ROOM+ " (room_id,grid_no) VALUES (1,'12,25')," +
             "(2,'11,25'),(2,'10,25'),(4,'8,25')," +
             "(4,'8,24'),(4,'8,23')," +
-            "(3,'9,21'),(3,'9,22'),(5,'5,24'),(6,'6,17'),(7,'6,16');" ;
+            "(3,'9,21'),(3,'9,22'),(5,'5,24'),(6,'6,16'),(7,'6,17');" ;
     private static final String CREATE_TABLE_WAYPOINTS ="CREATE TABLE IF NOT EXISTS "+TBL_WAYPOINTS +"("+REF_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ROOM_NO+" INTEGER NOT NULL ,"+X_VALUE+" INTEGER not null ,"+Y_VALUE+" INTEGER not null );";
-    private static final String INSERT_VALUE_WAYPOINTS="INSERT INTO " + TBL_WAYPOINTS+ "(room_no,x_value,y_value) VALUES (000,12,25),(001,11,26),(096,11,25),(097,9,25),(005,9,10),(098,8,25),(099,8,23),(095,9,21),(199,5,24),(198,6,24),(197,6,16),(196,6,9),(107,5,9),(106,3,16);" ;
+    private static final String INSERT_VALUE_WAYPOINTS="INSERT INTO " + TBL_WAYPOINTS+ "(room_no,x_value,y_value) VALUES (000,12,25),(001,11,26),(096,11,25),(097,9,25),(005,9,11),(098,8,25),(099,8,23),(095,9,21),(199,5,24),(198,6,24),(197,6,16),(196,6,9),(107,5,9),(106,3,16);" ;
     public static final String WAY_ID = "way_id";
     public static final String WAY_REF_ID = "way_ref_id";
-    private static final String CREATE_TABLE_WAYPOINTS_NUM ="CREATE TABLE IF NOT EXISTS "+TBL_WAYPOINTS_NUMBER +"("+WAY_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ROOM_NO+" INTEGER NOT NULL ,"+WAY_REF_ID+" INTEGER NOT NULL );";
-    private static final String INSERT_VALUE_WAYPOINTS_NUM="INSERT INTO " + TBL_WAYPOINTS_NUMBER+ "(room_no,way_ref_id) VALUES (000,0),(096,1),(001,2),(097,3),(095,4),(005,7),(098,5),(099,6),(199,0),(198,1),(197,2),(196,4),(106,3),(107,5);" ;
+    private static final String CREATE_TABLE_WAYPOINTS_NUM ="CREATE TABLE IF NOT EXISTS "+TBL_WAYPOINTS_NUMBER +"("+WAY_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ROOM_NO+" INTEGER NOT NULL ,"+WAY_REF_ID+" INTEGER NOT NULL ,"+FLOOR_ID+" INTEGER NOT NULL );";
+    private static final String INSERT_VALUE_WAYPOINTS_NUM="INSERT INTO " + TBL_WAYPOINTS_NUMBER+ "(room_no,way_ref_id,floor_id) VALUES (000,0,1),(096,1,1),(001,2,1),(097,3,1),(095,4,1),(005,7,1),(098,5,1),(099,6,1),(199,0,2),(198,1,2),(197,2,2),(196,4,2),(106,3,2),(107,5,2);" ;
 
 
 

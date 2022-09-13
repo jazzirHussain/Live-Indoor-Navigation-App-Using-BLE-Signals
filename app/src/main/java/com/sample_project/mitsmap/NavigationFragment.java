@@ -113,7 +113,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
+       this.mContext = context;
      //   dbmanager=new DatabaseManger(getActivity());
     }
 
@@ -280,9 +280,9 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
                             // resultBle.clear();
                         }
                     }else{
-                        Toast.makeText(getActivity().getApplicationContext(),"No device found",Toast.LENGTH_SHORT).show();
+                        textView.setText("Searching for nearbydevice");
 
-                        //scanBLE();
+                        scanBLE(container, view);
                     }
 
                     // Repeat.
@@ -619,7 +619,43 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
 //
 //            startActivity(intent_explore);
 //            finish();
+            int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
+            int room_no=dbmanager.fetchMyRoom(room_id_no);
+            textView.setText(room_no+" - "+dbmanager.fetchRoomName(room_no));
+            textView1.setVisibility(View.VISIBLE);
+            dropdown.setVisibility(View.VISIBLE);
+            btn_nav.setVisibility(View.VISIBLE);
+            int[] pointsName=dbmanager.allRooms();
+            Log.i("All_rooms", Arrays.toString(pointsName));
+            Integer[] newArray = new Integer[pointsName.length];
+            ArrayList ae = new ArrayList<>();;
+            String[] rooms_with_name=new String[pointsName.length];
+            int i = 0;
+            for (int value : pointsName) {
+                newArray[i++] = Integer.valueOf(value);
+                ae.add(Integer.valueOf(value)+" - " +dbmanager.fetchRoomName(Integer.valueOf(value)));
 
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_spinner_item, ae);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            dropdown.setAdapter(adapter);
+
+            btn_nav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentManager fm = getFragmentManager();
+                    FragmentTransaction ft = fm.beginTransaction();
+                    SecondFragment llf = new SecondFragment();
+                    Bundle args = new Bundle();
+                    args.putString("spinnerValue", dropdown.getSelectedItem().toString());
+                    args.putInt("start_point",room_no);
+
+                    llf.setArguments(args);
+                    ft.replace(((ViewGroup) getView().getParent()).getId(), llf);
+                    ft.commit();
+                }
+            });
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -628,6 +664,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
         attributeList.clear();
         classVal.clear();
         className=null;
+        current_floor=0;
 
     }
 

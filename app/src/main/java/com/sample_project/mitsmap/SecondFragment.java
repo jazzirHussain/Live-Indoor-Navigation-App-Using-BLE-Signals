@@ -1,6 +1,8 @@
 package com.sample_project.mitsmap;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -27,13 +30,16 @@ public class SecondFragment extends Fragment {
     ImageView imageView;
     ImageView imageView2;
     int floor_number,des_floor_number;
+    int lift_node_no=0;
     private DatabaseManger dbmanager;
     static boolean floor_check=false;
     static int[] selected_pathpoints;
     static int[][] pathpointsselected ;
     static int[] roomsinpath;
+    boolean start_at_exit=false;
     SharedPreferences sharedpreference_location ;
     SharedPreferences.Editor editor ;
+    AlertDialog.Builder alertDialogBuilder;
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
@@ -44,6 +50,7 @@ public class SecondFragment extends Fragment {
         navBar.setVisibility(View.GONE);
         sharedpreference_location = getActivity().getApplicationContext().getSharedPreferences("Nav_Location", Context.MODE_PRIVATE);
         editor = sharedpreference_location.edit();
+        alertDialogBuilder= new AlertDialog.Builder(getActivity());
         String strtext = getArguments().getString("spinnerValue");
         Log.i("Data",strtext);
 //        HashMap<String,Integer> room_vertices=new HashMap<String,Integer>();
@@ -138,22 +145,124 @@ public class SecondFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(),"Same start and stop location" , Toast.LENGTH_SHORT).show();
             }
 
-        }
-//        CustomView customView= null;
-//        try {
-//            customView = new CustomView(getActivity().getApplicationContext());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        customView.setStartFloorNum(floor_number);
-//        customView.setDestFloorNum(des_floor_number);
-//        customView.setStartRoomVertex(start_loc_num);
-//        customView.setDestRoomVertex(dest_loc_num);
-//        customView.postInvalidate();
-//        customView.requestLayout();
-//
-//        return customView;
+        }else{
+            // Toast.makeText(getApplicationContext(),"Source and destination on different floor",Toast.LENGTH_SHORT).show();
+//                    show the path from source to the shortest lift /stair in the same floor.
+//                    1.check for the lifts/stair in the floor.for that retrive from the room table
+            ArrayList<String> liftsinfloor=dbmanager.fetchLiftStairinFloor(floor_number);
+            int[] floor_dest=new int[liftsinfloor.size()];
+            Log.i("floor_lift",liftsinfloor.size()+" is the size");
+            for (int i = 0; i < liftsinfloor.size();i++)
+            {
+                String tosplit=liftsinfloor.get(i);
+                Log.i("floor_lift",tosplit+"");
+                String[] parts1 = tosplit.split(",");
+                Log.i("floor_lift",Arrays.toString(parts1)+" second part after split "+parts1[1]);
+                parts1[1]=parts1[1].replace(" ","");
+                parts1[1]=parts1[1].trim();
+                floor_dest[i]=Integer.parseInt(parts1[1]);
+            }
 
+            Log.i("floor_lift",Arrays.toString(floor_dest));
+            //get the corresponding waypoint number for floor_dest
+            for(int i=0;i<floor_dest.length;i++){
+                floor_dest[i]=dbmanager.fetchRoomWayNumber(floor_dest[i]);
+            }
+            for(int element=0;element<floor_dest.length;element++) {
+                if (floor_dest[element] == start_loc_num) {
+                    start_at_exit = true;
+                    break;
+                }
+            }
+
+            Log.i("Lift_number", "lift_node_no"+lift_node_no);
+            if (start_at_exit) {
+                String direction="downwards";
+                if(floor_number-des_floor_number>0)
+                {
+                    direction="downwards";
+                    lift_node_no=6;
+                }
+                else
+                {
+                    direction="upwards";
+                    lift_node_no=0;
+                }
+                Log.i("START_AT_EXIT", "start_at_exit=You are at exit point of current floor");
+                alertDialogBuilder.setTitle("Floor Change");
+                alertDialogBuilder.setMessage("Please go "+direction+"  to reach your destination room on floor number " + des_floor_number+". Press on OK Button once you reach your destination floor");
+                alertDialogBuilder.setCancelable(true);
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+//                                                  Log.i("START_AT_EXIT_in", "start_at_exit=" + start_at_exit);
+                        DijkstrasAlgorithm.dijkstra(Adjacency_VARIABLE.get_adjacency_matrix(des_floor_number), 0, dest_loc_num);
+                        // Path_Result myPath = new Path_Result();
+                        selected_pathpoints = Path_Result.myPath;
+                        Log.i("selected_path_diff",Arrays.toString(selected_pathpoints)+" in the destination floor "+des_floor_number);
+                        Path_Result.refreshPath();
+                        pathpointsselected = new int[selected_pathpoints.length][2];
+                        roomsinpath=new int[selected_pathpoints.length];
+                        for(int i=0;i<selected_pathpoints.length;i++){
+                            roomsinpath[i]=dbmanager.fetchRoomNumber(selected_pathpoints[i],des_floor_number);
+                            pathpointsselected[i][0]=dbmanager.fetchXWayPointNumber(roomsinpath[i]);
+                            pathpointsselected[i][1]=dbmanager.fetchYWayPointNumber(roomsinpath[i]);
+                        }
+                        Intent in = new Intent(getActivity().getApplicationContext(), DijkstrasActivity.class);
+                        in.putExtra("selected_points", selected_pathpoints);
+                        in.putExtra("selected_rooms", roomsinpath);
+                        in.putExtra("floor_num", des_floor_number);//start_floor
+                        in.putExtra("NAV_STATUS", 1);//different floor
+                        in.putExtra("start_at_exit", true);// if start at the exit point of source floor=true else false,
+                        Bundle mBundle = new Bundle();
+                        mBundle.putSerializable("selected_XY_points", pathpointsselected);
+                        in.putExtras(mBundle);
+                        startActivity(in);
+                        Log.i("dif_selected_points", Arrays.toString(selected_pathpoints));
+                        Log.i("dif_selected_rooms", Arrays.toString(roomsinpath));
+                        selected_pathpoints = null;
+                        roomsinpath = null;
+
+                    }
+
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+
+            } else {
+                selected_pathpoints = ShortestPath.dijkstra(Adjacency_VARIABLE.get_adjacency_matrix(floor_number), start_loc_num, floor_dest);
+                Log.i("selected_path", Arrays.toString(selected_pathpoints));
+                Path_Result.refreshPath();
+                pathpointsselected = new int[selected_pathpoints.length][2];
+                roomsinpath = new int[selected_pathpoints.length];
+                for (int i = 0; i < selected_pathpoints.length; i++) {
+                    roomsinpath[i] = dbmanager.fetchRoomNumber(selected_pathpoints[i],floor_number);
+                    pathpointsselected[i][0] = dbmanager.fetchXWayPointNumber(roomsinpath[i]);
+                    pathpointsselected[i][1] = dbmanager.fetchYWayPointNumber(roomsinpath[i]);
+                }
+                Log.i("dij_selected_points_s3", Arrays.toString(selected_pathpoints));
+                Log.i("dij_selected_rooms_s3", Arrays.toString(roomsinpath));
+
+                Log.i("START_AT_EXIT_in", "start_at_exit=" + start_at_exit);
+                Intent in = new Intent(getActivity().getApplicationContext(), DijkstrasActivity.class);
+                in.putExtra("selected_points", selected_pathpoints);
+                in.putExtra("selected_rooms", roomsinpath);
+                in.putExtra("floor_num", floor_number);//start_floor
+                in.putExtra("NAV_STATUS", 1);//different floor
+                in.putExtra("start_at_exit", false);// if start at the exit point of source floor=true else false,
+                Bundle mBundle = new Bundle();
+                mBundle.putSerializable("selected_XY_points", pathpointsselected);
+                in.putExtras(mBundle);
+                startActivity(in);
+                selected_pathpoints = null;
+                roomsinpath = null;
+
+            }
+//
+        }
 
    return inflater.inflate(R.layout.fragment_second, container, false);
     }

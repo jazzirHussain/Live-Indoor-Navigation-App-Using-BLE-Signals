@@ -214,6 +214,7 @@ public class DatabaseManger {
 
             int index1=cr.getColumnIndex(DatabaseHelper.X_VALUE);
             xy_value=cr.getInt(index1);
+
         }
         // closing connection
         cr.close();
@@ -221,7 +222,7 @@ public class DatabaseManger {
     }
 
     public int fetchRoomNumber(int selected_pathpoint,int floor) {
-        floor=floor+1;
+
         String search= String.valueOf(floor)+'%';
         int room_value = 0;
         int room_id=0;
@@ -229,8 +230,7 @@ public class DatabaseManger {
         database = dbHelper.getReadableDatabase();
         String selectQuery =  "SELECT * FROM "
                 + DatabaseHelper.TBL_WAYPOINTS_NUMBER +" WHERE "+DatabaseHelper.WAY_REF_ID+" = "
-                + selected_pathpoint +" AND "+DatabaseHelper.ROOM_NO
-                + " LIKE '" + floor + "%'" ;
+                + selected_pathpoint +" AND "+DatabaseHelper.FLOOR_ID+" = "+ floor;
 
         Cursor cr = database.rawQuery(selectQuery, null);
         while (cr.moveToNext()) {
@@ -238,6 +238,7 @@ public class DatabaseManger {
             int index1=cr.getColumnIndex(DatabaseHelper.ROOM_NO);
             room_value=cr.getInt(index1);
         }
+        Log.i("roomno_floor", "You are near "+room_value+" in floor "+floor);
         // closing connection
         cr.close();
         return room_value;
@@ -396,7 +397,7 @@ public class DatabaseManger {
     }
     public ArrayList<String> fetchLiftStairinFloor(int floor_number) {
         int room_id=0;
-        floor_number=floor_number+1;
+
         String search="lift";
         ArrayList<String> arList = new ArrayList<>();
         boolean flag=false;
@@ -404,8 +405,8 @@ public class DatabaseManger {
         dbHelper = new DatabaseHelper(context);
         database = dbHelper.getReadableDatabase();
         String selectQuery =  "SELECT * FROM "
-                + DatabaseHelper.TBL_ROOM +" WHERE "+DatabaseHelper.ROOM_NAME+" LIKE 'lift%'" +" AND "+DatabaseHelper.ROOM_NO
-                + " LIKE '" + floor_number + "%'" ;
+                + DatabaseHelper.TBL_ROOM +" WHERE "+DatabaseHelper.ROOM_NAME+" LIKE 'lift%'" +" AND "+DatabaseHelper.FLOOR_ID+" = "
+                + floor_number ;
         Cursor cr = database.rawQuery(selectQuery, null);
         while (cr.moveToNext()) {
 
