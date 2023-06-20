@@ -36,8 +36,10 @@ AboutFragment aboutFragment=new AboutFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //to get the screen in full screen mode
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         android10BluetoothPermission();

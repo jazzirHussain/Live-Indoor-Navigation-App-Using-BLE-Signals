@@ -5,14 +5,19 @@ public class Adjacency_VARIABLE {
         int[][] myadjacencyMatrix=null;
 
         final int[][] adjacencyMatrix_floor1 = {
-                {0, 1, 0, 0, 0, 0, 0, 0},
-                {1, 0, 1, 1, 0, 0, 0, 0},
-                {0, 1, 0, 0, 0, 0, 0, 0},
-                {0, 1, 0, 0, 1, 1, 0, 0},
-                {0, 0, 0, 1, 0, 0, 0, 1},
-                {0, 0, 0, 1, 0, 0, 1, 0},
-                {0, 0, 0, 0, 0, 1, 0, 0},
-                {0, 0, 0, 0, 1, 0, 0, 0}
+                {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0},
+                {0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0},
+                {0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
 
         };
         final int[][] adjacencyMatrix_floor2={
@@ -25,12 +30,18 @@ public class Adjacency_VARIABLE {
 
 
         };
+//        final int[][] adjacencyMatrix_floor3={
+                //add new adjacancy matrix
+//
+//
+//        };
         switch(floor){
             case 1: myadjacencyMatrix= adjacencyMatrix_floor1;
             break;
             case 2: myadjacencyMatrix=  adjacencyMatrix_floor2;
             break;
-
+//            case 3: myadjacencyMatrix=  adjacencyMatrix_floor3;
+//            break;
 
         }
       return  myadjacencyMatrix;

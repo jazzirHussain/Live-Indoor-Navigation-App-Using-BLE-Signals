@@ -187,10 +187,10 @@ Log.i("cell","width="+cellWidth+" height="+cellHeight);
         //Log.i("bitmap4",GridActivity.getFloorNum()+"---"+numColumns);
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.OVERLAY);
         switch(1){
-            case 1:   bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.reception_full);
+            case 1:   bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.reception_blue);
                 bitmap_created = BitmapCreation(bitmap4);
                 break;
-            case 2:   bitmap5 = BitmapFactory.decodeResource(getResources(), R.drawable.second_floor_edited);
+            case 2:   bitmap5 = BitmapFactory.decodeResource(getResources(), R.drawable.second_floor_blue);
                 bitmap_created = BitmapCreation(bitmap5);
                 break;
             default: Toast.makeText(getContext(), "Choose fifth floor", Toast.LENGTH_SHORT).show();

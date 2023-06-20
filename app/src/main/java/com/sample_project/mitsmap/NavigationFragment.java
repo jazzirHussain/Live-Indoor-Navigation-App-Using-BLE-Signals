@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.util.Log;
@@ -103,12 +104,13 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
     private static int collectionCount=0;
     private Context mContext;
     static String rssi_old;
-    TextView textView,textView1;
+    TextView textView,textView1,textView4;
     Spinner dropdown;
     Button btn_nav;
     String[] floor = new String[] {
-            "Entrance", "Reception", "Library", "Lift 1","Lift 2", "Office", "Principal Room"
+            "Lift", "Electronics Workshop", "Digital Electronics Lab", "Classroom 1","Analog Communication Lab", "ECE Staffroom", "Communication Lab", "classroom 2", "Classroom 3", "Tutorial room"
     };
+
     int x_flag = 1,scan_val = 0;
     @Override
     public void onAttach(Context context) {
@@ -157,6 +159,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
 //        btn_viewmaps=view.findViewById(R.id.btn_view_maps);
         textView=view.findViewById(R.id.tv_start);
         textView1=view.findViewById(R.id.textView4);
+
         dropdown=view.findViewById(R.id.spinner_waypoints);
         btn_nav=view.findViewById(R.id.btn_nav);
         Log.i(WEKA_TEST,  "clicked on button");
@@ -294,7 +297,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
 //                        scanBLE();
 //                    }
                 }
-            }, 2000);
+            }, 2500);
 
             scanning = true;
             Log.i("Log_scan_3", "scan finished" + scanning);
@@ -475,7 +478,6 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
     private void predictTheModelF1(int current_floor, ViewGroup container, View view) {
         try {
 
-
             //Toast.makeText(getApplicationContext(), "["+ attributeList+"]", Toast.LENGTH_SHORT).show();
             attributeList.clear();
             classVal.clear();
@@ -486,6 +488,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             Attribute mac5 = new Attribute("mac5");
             Attribute mac6 = new Attribute("mac6");
             Attribute mac7 = new Attribute("mac7");
+            Attribute mac8 = new Attribute("mac8");
 
             Attribute magx = new Attribute("magx");
             Attribute magy = new Attribute("magy");
@@ -502,18 +505,17 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
 
 //                    @attribute grid {'15,1','15,0','14,1','13,1','13,0','12,0','11,0','11,1','12,1','12,2','12,3','12,4','12,5','12,6','12,7','11,7','11,6','11,5','11,4','11,3','11,2'}
 
-
-            classVal.add("12,25");
-            classVal.add("11,25");
-            classVal.add("10,25");
-            classVal.add("9,25");
-            classVal.add("8,25");
-            classVal.add("8,24");
-            classVal.add("9,24");
-            classVal.add("9,23");
-            classVal.add("9,22");
-            classVal.add("9,21");
-            classVal.add("8,23");
+//the grid values we need to predict
+            classVal.add("193,784");
+            classVal.add("195,695");
+            classVal.add("192,661");
+            classVal.add("193,531");
+            classVal.add("193,275");
+            classVal.add("206,270");
+            classVal.add("320,262");
+            classVal.add("321,395");
+            classVal.add("323,578");
+            classVal.add("320,722");
 
             // Toast.makeText(getApplicationContext(), "["+ classVal+"]", Toast.LENGTH_SHORT).show();
             attributeList.add(mac1);
@@ -523,6 +525,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             attributeList.add(mac5);
             attributeList.add(mac6);
             attributeList.add(mac7);
+            attributeList.add(mac8);
             attributeList.add(magx);
             attributeList.add(magy);
             attributeList.add(magz);
@@ -557,6 +560,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
                     setValue(mac5, fixedMACBLE.get("E0:E2:E6:0D:49:76"));
                     setValue(mac6, fixedMACBLE.get("E0:E2:E6:0D:39:FA"));
                     setValue(mac7, fixedMACBLE.get("E0:E2:E6:0B:7D:7A"));
+                    setValue(mac8, fixedMACBLE.get("3C:61:05:14:B1:BA"));
                     setValue(magx, magneticX);
                     setValue(magy, magneticY);
                     setValue(magz, magneticZ);
@@ -573,7 +577,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             };
             // reference to dataset
             inst_co.setDataset(data);
-            Log.d(WEKA_TEST, data + "");
+            Log.i(WEKA_TEST, data + "");
             // Set instance's values for the attributes "latitude", "longitude", and
             // "pollutant concentration"
 
@@ -581,12 +585,9 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             //  inst_co.setDataset(data);
             //Classifier cls_co;
             AssetManager assetManager = getContext().getAssets();
-            InputStream is = assetManager.open("mgeorgeblock_floor1_j48.model");
-            //previous model=updated_model4(j48).model
+            InputStream is = assetManager.open("mg.model");
+           //use the algorithm that we used to train the model in weka
             J48 cls_co = (J48) weka.core.SerializationHelper.read(is);
-
-            // IBk cls_co = (IBk) SerializationHelper.read(assetManager.open("iBK_combined_data.model"));
-
             if (cls_co == null) {
                 Toast.makeText(getActivity(), "Model not loaded!", Toast.LENGTH_SHORT).show();
                 return;
@@ -596,11 +597,11 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
 //                            // load classifier from file
             }
             double result = 0;
-            Log.d(WEKA_TEST, cls_co + "");
-            Log.d(WEKA_TEST, inst_co + "");
+//            Log.i(WEKA_TEST, cls_co + "");
+//            Log.i(WEKA_TEST, inst_co + "");
             result = cls_co.classifyInstance(inst_co);
             className = classVal.get(Double.valueOf(result).intValue());
-            Log.d(WEKA_TEST, result + "   " + className);
+            Log.i("some", result + "   " + className);
 
             // pixelGrid.setGridValue(className);
             Log.i("c_floor", result + "  --2-- " + className);
@@ -621,7 +622,11 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
 //            finish();
             int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
             int room_no=dbmanager.fetchMyRoom(room_id_no);
-            textView.setText(room_no+" - "+dbmanager.fetchRoomName(room_no));
+            if(room_id_no==-1)
+                textView.setText("Please move to a nearby accesspoint");
+                else
+                textView.setText(room_no+" - "+dbmanager.fetchRoomName(room_no));
+
             textView1.setVisibility(View.VISIBLE);
             dropdown.setVisibility(View.VISIBLE);
             btn_nav.setVisibility(View.VISIBLE);
@@ -644,7 +649,7 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             btn_nav.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager fm = getFragmentManager();
+                    FragmentManager fm = getChildFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();
                     SecondFragment llf = new SecondFragment();
                     Bundle args = new Bundle();
@@ -808,30 +813,37 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
             Log.i("c_floor", result + "  --2-- " + className);
             //need to find the floor also
             // int current_floor=checkTheFloor();
-            Log.i("c_floor", "current_floor" +className);
+            Log.i("c_floor", "current_floor" + className);
 
-            int room_id_no=dbmanager.fetchNearByRoom(className,current_floor);
-            int room_no=dbmanager.fetchMyRoom(room_id_no);
-            Log.i("c_floor", "You are near "+room_id_no+" ==>>Current location: "+room_no);
-            textView.setText(room_no+" - "+dbmanager.fetchRoomName(room_no));
-
+            int room_id_no = dbmanager.fetchNearByRoom(className, current_floor);
+            int room_no = dbmanager.fetchMyRoom(room_id_no);
+            Log.i("c_floor", "You are near " + room_id_no + " ==>>Current location: " + room_no);
+            if (room_id_no == -1){
+                textView.setText("Please move to a nearby accesspoint");
+                scanBLE(container, view);
+            }
+            else
+            {
+                textView.setText(room_no + " - " + dbmanager.fetchRoomName(room_no));
 
 
             // Toast.makeText(this,"You are near "+room_id_no+"\n Current location: "+room_no,Toast.LENGTH_SHORT).show();
             //setContentView(pixelGrid);
             btScanner.stopScan(leScanCallback);
             textView1.setVisibility(View.VISIBLE);
+
             dropdown.setVisibility(View.VISIBLE);
             btn_nav.setVisibility(View.VISIBLE);
-            int[] pointsName=dbmanager.allRooms();
+            int[] pointsName = dbmanager.allRooms();
             Log.i("All_rooms", Arrays.toString(pointsName));
             Integer[] newArray = new Integer[pointsName.length];
-            ArrayList ae = new ArrayList<>();;
-            String[] rooms_with_name=new String[pointsName.length];
+            ArrayList ae = new ArrayList<>();
+            ;
+            String[] rooms_with_name = new String[pointsName.length];
             int i = 0;
             for (int value : pointsName) {
                 newArray[i++] = Integer.valueOf(value);
-                ae.add(Integer.valueOf(value)+" - " +dbmanager.fetchRoomName(Integer.valueOf(value)));
+                ae.add(Integer.valueOf(value) + " - " + dbmanager.fetchRoomName(Integer.valueOf(value)));
 
             }
 
@@ -847,13 +859,14 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
                     SecondFragment llf = new SecondFragment();
                     Bundle args = new Bundle();
                     args.putString("spinnerValue", dropdown.getSelectedItem().toString());
-                    args.putInt("start_point",room_no);
+                    args.putInt("start_point", room_no);
 
                     llf.setArguments(args);
                     ft.replace(((ViewGroup) getView().getParent()).getId(), llf);
                     ft.commit();
                 }
             });
+        }
 //            Intent intent_explore = new Intent(getActivity().getApplicationContext(), StartNavigation.class);
 //            intent_explore.putExtra("initalXY",className);
 //            intent_explore.putExtra("cur_room_no", room_no);
@@ -876,59 +889,25 @@ public class NavigationFragment extends Fragment implements SensorEventListener 
         fixedMACBLE.clear();
         fixedMACBLE.put("AC:67:B2:3C:C6:46",0);//esp32 1
         fixedMACBLE.put("3C:61:05:14:A7:C2",0);//esp32 2
-        fixedMACBLE.put("3C:61:05:11:C6:02",0);//esp32 3
-        fixedMACBLE.put("3C:61:05:11:D0:02",0);//esp32 4
-        fixedMACBLE.put("3C:61:05:11:CE:82",0);//esp32 5
-        fixedMACBLE.put("3C:61:05:11:D0:EE",0);//esp32 6
-        fixedMACBLE.put("AC:67:B2:3C:CC:1A",0);//esp32 7
-        fixedMACBLE.put("3C:61:05:11:C7:FE",0);//esp32 8
-
-        fixedMACBLE.put("3C:61:05:11:B5:EA",0);//esp32 9
-
         fixedMACBLE.put("3C:61:05:14:B1:BA",0);//esp32 10
-        fixedMACBLE.put("3C:61:05:11:D1:D2",0);//esp32 11
-        fixedMACBLE.put("3C:61:05:14:AF:12",0);//esp32 12
-        fixedMACBLE.put("3C:61:05:11:CD:4E",0);//esp32 13
         fixedMACBLE.put("3C:61:05:14:B5:0A",0);//esp32 14
-
-
-        fixedMACBLE.put("3C:61:05:11:D0:36",0);//esp32 17
-        fixedMACBLE.put("AC:67:B2:3C:CB:FA",0);//esp32 18
-        fixedMACBLE.put("3C:61:05:11:C8:8A",0);//esp32 19
         fixedMACBLE.put("3C:61:05:14:A7:72",0);//esp32 20
         fixedMACBLE.put("E0:E2:E6:0D:49:76",0); //	-ESP21 -[05]
         fixedMACBLE.put("E0:E2:E6:0D:39:FA",0);	//-ESP23 -[06]
         fixedMACBLE.put("E0:E2:E6:0B:7D:7A",0);	//-ESP24 -[07]
-        // fixedMACBLE.put("D0:5F:64:52:12:BB",0);//NODE1
+
     }
+    //MAc and its corresponding floor number
     private void resetBLEFLOORReadings() {
         BLE_FLOOR.clear();
         BLE_FLOOR.put("AC:67:B2:3C:C6:46",1);//esp32 1
         BLE_FLOOR.put("3C:61:05:14:A7:C2",1);//esp32 2
-        BLE_FLOOR.put("3C:61:05:11:C6:02",0);//esp32 3
-        BLE_FLOOR.put("3C:61:05:11:D0:02",0);//esp32 4
-        BLE_FLOOR.put("3C:61:05:11:CE:82",0);//esp32 5
-        BLE_FLOOR.put("3C:61:05:11:D0:EE",0);//esp32 6
-        BLE_FLOOR.put("AC:67:B2:3C:CC:1A",0);//esp32 7
-        BLE_FLOOR.put("3C:61:05:11:C7:FE",0);//esp32 8
-
-        BLE_FLOOR.put("3C:61:05:11:B5:EA",0);//esp32 9
-
-        BLE_FLOOR.put("3C:61:05:14:B1:BA",0);//esp32 10
-        BLE_FLOOR.put("3C:61:05:11:D1:D2",0);//esp32 11
-        BLE_FLOOR.put("3C:61:05:14:AF:12",0);//esp32 12
-        BLE_FLOOR.put("3C:61:05:11:CD:4E",0);//esp32 13
+        BLE_FLOOR.put("3C:61:05:14:B1:BA",1);//esp32 10
         BLE_FLOOR.put("3C:61:05:14:B5:0A",1);//esp32 14
-
-
-        BLE_FLOOR.put("3C:61:05:11:D0:36",0);//esp32 17
-        BLE_FLOOR.put("AC:67:B2:3C:CB:FA",0);//esp32 18
-        BLE_FLOOR.put("3C:61:05:11:C8:8A",0);//esp32 19
-        BLE_FLOOR.put("3C:61:05:14:A7:72",2);//esp32 20
-        BLE_FLOOR.put("E0:E2:E6:0D:49:76",2); //	-ESP21 -[05]
-        BLE_FLOOR.put("E0:E2:E6:0D:39:FA",2);	//-ESP23 -[06]
-        BLE_FLOOR.put("E0:E2:E6:0B:7D:7A",2);	//-ESP24 -[07]
-//        BLE_FLOOR.put("D0:5F:64:52:12:BB",4);//NODE1
+        BLE_FLOOR.put("3C:61:05:14:A7:72",1);//esp32 20
+        BLE_FLOOR.put("E0:E2:E6:0D:49:76",1); //	-ESP21 -[05]
+        BLE_FLOOR.put("E0:E2:E6:0D:39:FA",1);	//-ESP23 -[06]
+        BLE_FLOOR.put("E0:E2:E6:0B:7D:7A",1);	//-ESP24 -[07]
     }
 
     @Override

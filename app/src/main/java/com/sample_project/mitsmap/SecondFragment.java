@@ -53,22 +53,6 @@ public class SecondFragment extends Fragment {
         alertDialogBuilder= new AlertDialog.Builder(getActivity());
         String strtext = getArguments().getString("spinnerValue");
         Log.i("Data",strtext);
-//        HashMap<String,Integer> room_vertices=new HashMap<String,Integer>();
-//        room_vertices.put("Entrance",0);
-//        room_vertices.put("Reception",2);
-//        room_vertices.put("Library",4);
-//        room_vertices.put("Lift 1",6);
-//        room_vertices.put("Lift 2",0);
-//        room_vertices.put("Office",3);
-//        room_vertices.put("Principal Room",5);
-//        HashMap<String,Integer> room_floor=new HashMap<String,Integer>();
-//        room_floor.put("Entrance",1);
-//        room_floor.put("Reception",1);
-//        room_floor.put("Library",1);
-//        room_floor.put("Lift 1",1);
-//        room_floor.put("Lift 2",2);
-//        room_floor.put("Office",2);
-//        room_floor.put("Principal Room",2);
 
         int start_room=0,end_room;
         start_room=getArguments().getInt("start_point");

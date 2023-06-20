@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -63,7 +64,7 @@ public class DijkstrasLiveView extends View {
         blackPaint.setColor(Color.BLACK);
         blackPaint.setStyle(Paint.Style.STROKE);
         blackPaint.setTextSize(18);
-        redPaint.setColor(Color.RED);
+        redPaint.setColor(Color.MAGENTA);
         redPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         redPaint.setStrokeWidth(10);
         bluePaint.setColor(Color.BLUE);
@@ -309,6 +310,7 @@ public class DijkstrasLiveView extends View {
                 Log.i("c_a_grid_valx1", (y1)*cellHeight+"");
                 Log.i("c_a_grid_valx1", (x2)*cellWidth+"");
                 Log.i("c_a_grid_valx1", (y2)*cellHeight+"");
+                redPaint.setPathEffect(new DashPathEffect(new float[]{10.0f,5.0f},0));
                 canvas.drawLine(((x1)*cellWidth)+(cellWidth/2),((y1)*cellHeight)+(cellHeight/2),((x2)*cellWidth)+(cellWidth/2),((y2)*cellHeight)+(cellHeight/2),redPaint);
 
             }
@@ -320,50 +322,53 @@ public class DijkstrasLiveView extends View {
 
         // log values of sensor s
 
-
+//
 //        c.drawText(String.valueOf(sensorData.getCompassValue()), 50, 50,
 //                Inventory.text50BLUE());
 //        c.drawText(String.valueOf(sensorData.getMagneticValue()), 50, 100,
 //                Inventory.text50BLUE());
-
-
-        // setting boundary
-        if (Inventory.X >= 1080)
-            Inventory.X = 1080 - arrow.getWidth();
-        if (Inventory.Y >= 1720)
-            Inventory.Y = 1720 - arrow.getHeight();
-
-        if (Inventory.X <= 0)
-            Inventory.X = 0 + arrow.getWidth();
-        if (Inventory.Y <= 0)
-            Inventory.Y = 0 + arrow.getHeight();
-
-        Matrix m = new Matrix();
-
-        float x_compass= (float) sensorData.getCompassValue();
-        //Toast.makeText(getContext(),"Compass_value"+x_compass,Toast.LENGTH_SHORT).show();
-        if(sign_value){
-            x_compass=x_compass-180;
-        }
-        //Toast.makeText(getContext(),"Compass_value2"+x_compass,Toast.LENGTH_SHORT).show();
-//        if (x_compass >= 0 )
-//            x_compass=x_compass;
-//    else
-//            x_compass=x_compass + 360;
-
-//        c.drawText(String.valueOf(x_compass), 50, 150,
-//                Inventory.text50BLUE());
-//        if(x_compass>0)
-//            x_compass=x_compass+360;
-
-
-        m.setRotate((float) (x_compass),
-                arrow.getWidth() / 2.0f, arrow.getHeight() / 2.0f);
-
-        m.postTranslate(x- arrow.getWidth() / 2.0f, y
-                - arrow.getHeight() / 2.0f);
-        c.drawBitmap(arrow, m, null);
-
+//
+//
+//        // setting boundary
+//        if (Inventory.X >= 1080)
+//            Inventory.X = 1080 - arrow.getWidth();
+//        if (Inventory.Y >= 1720)
+//            Inventory.Y = 1720 - arrow.getHeight();
+//
+//        if (Inventory.X <= 0)
+//            Inventory.X = 0 + arrow.getWidth();
+//        if (Inventory.Y <= 0)
+//            Inventory.Y = 0 + arrow.getHeight();
+//
+//        Matrix m = new Matrix();
+//
+//        float x_compass= (float) sensorData.getCompassValue();
+//        //Toast.makeText(getContext(),"Compass_value"+x_compass,Toast.LENGTH_SHORT).show();
+//        if(sign_value){
+//            x_compass=x_compass-180;
+//        }
+//        //Toast.makeText(getContext(),"Compass_value2"+x_compass,Toast.LENGTH_SHORT).show();
+////        if (x_compass >= 0 )
+////            x_compass=x_compass;
+////    else
+////            x_compass=x_compass + 360;
+//
+////        c.drawText(String.valueOf(x_compass), 50, 150,
+////                Inventory.text50BLUE());
+////        if(x_compass>0)
+////            x_compass=x_compass+360;
+//
+//
+//        m.setRotate((float) (x_compass),
+//                arrow.getWidth() / 2.0f, arrow.getHeight() / 2.0f);
+//
+//        m.postTranslate(x- arrow.getWidth() / 2.0f, y
+//                - arrow.getHeight() / 2.0f);
+//        c.drawBitmap(arrow, m, null);
+//c.drawCircle(x,y,15,bluePaint);
+bluePaint.setStyle(Paint.Style.STROKE);
+c.drawCircle(x,y,20,bluePaint);
+//bluePaint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 
 }

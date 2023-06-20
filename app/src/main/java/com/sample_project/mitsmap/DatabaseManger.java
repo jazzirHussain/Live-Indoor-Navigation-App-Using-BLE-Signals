@@ -265,7 +265,7 @@ public class DatabaseManger {
 
     public int fetchNearByRoom(String className, int floor) {
 
-        int xy_value = 0;
+        int xy_value = -1;
 
         dbHelper = new DatabaseHelper(context);
         database = dbHelper.getReadableDatabase();
@@ -289,7 +289,7 @@ public class DatabaseManger {
     }
 
     public int fetchMyRoom(int room_id_no) {
-        int xy_value = 0;
+        int xy_value = -1;
         int room_id=0;
         dbHelper = new DatabaseHelper(context);
         database = dbHelper.getReadableDatabase();

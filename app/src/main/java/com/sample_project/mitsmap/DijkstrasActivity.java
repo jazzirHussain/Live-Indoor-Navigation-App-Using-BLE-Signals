@@ -413,9 +413,9 @@ private static int datacollector=1;
 
 //                        no_of_scans = 1;
                     // Repeat.
-                    handler.postDelayed(this, 1000);
+                    handler.postDelayed(this, 1500);
                 }
-            }, 2500);
+            }, 2000);//earlier it is 2500
 
             scanning = true;
             Log.i("Log_scan_3", "scan finished" + scanning);

@@ -23,18 +23,22 @@ public class HomeFragment extends Fragment {
 //        photoView.setZoomable(true);
 //        photoView.setImageResource(R.drawable.fifth_floor_ramanujan_2);
         PhotoView photoView  = view. findViewById(R.id.photo_view);
+
         Button btn_floor1=view.findViewById(R.id.button1);
         Button btn_floor2=view.findViewById(R.id.button2);
         btn_floor1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                photoView.setImageResource(R.drawable.reception_edited);
+
+                photoView.setImageResource(R.drawable.reception_blue);
+
+
             }
         });
         btn_floor2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                photoView.setImageResource(R.drawable.second_floor_edited);
+                photoView.setImageResource(R.drawable.second_floor_blue);
             }
         });
 
