@@ -100,7 +100,7 @@ public class DijkstrasLiveView extends View {
         }
         try{
             switch(DijkstrasActivity.getFloorNum()){
-                case 1:  bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.reception_blue);
+                case 1:  bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.floor_plan);
                     rot_angle=270;
                     sign_value=false;
                     break;
@@ -163,11 +163,10 @@ public class DijkstrasLiveView extends View {
         this.numRows = numRows;
         calculateDimensions();
     }
-    public void setGridValue(String result) {
-        Log.i("grid_val_1", result);
-        String[] splitString = result.split(",");
-        this.GridX= Integer.parseInt(splitString[0]);
-        this.GridY= Integer.parseInt(splitString[1]);
+    public void setGridValue(int x, int y) {
+        Log.i("grid_val_1", x+" --> "+y+"");
+        this.GridX= x;
+        this.GridY= y;
 
     }
     public int getNumRows() {
@@ -202,6 +201,7 @@ public class DijkstrasLiveView extends View {
         // canvas.drawLine(353.67252f,501.68427f,353.67252f,700f,greePaint);
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.OVERLAY);
        // canvas.drawLine((9)*cellWidth,(47)*cellHeight,(12)*cellWidth,(47)*cellHeight,greePaint);
+        Log.i("some",myFlag+"");
         if(myFlag==false ){
             myFlag=true;
             drawResultPath(canvas,cellWidth,cellHeight);
@@ -264,12 +264,14 @@ public class DijkstrasLiveView extends View {
             int start_y = DijkstrasActivity.arrayReceived[0][1];
             int end_x=DijkstrasActivity.arrayReceived[DijkstrasActivity.arrayReceived.length-1][0];
             int end_y=DijkstrasActivity.arrayReceived[DijkstrasActivity.arrayReceived.length-1][1];
+            Log.i("some",start_x+"");
             if(sign_value){
                 start_x=rotateX180(start_x);
                 start_y=rotateY180(start_y);
                 end_x=rotateX180(end_x);
                 end_y=rotateY180(end_y);
             }
+            Log.i("some",start_x+"");
             canvas.drawCircle((start_x*cellWidth)+(cellWidth/2),(start_y*cellHeight)+(cellHeight/2),15,greePaint);
             canvas.drawCircle((end_x*cellWidth)+(cellWidth/2),(end_y*cellHeight)+(cellHeight/2),18,redPaint);
 //        }
@@ -296,9 +298,9 @@ public class DijkstrasLiveView extends View {
                 Log.i("cellx2", x2+"");
                 Log.i("celly2", y2+"");
                 Log.i("c_b_grid_valx1", (x1)*cellWidth+"");
-                Log.i("c_b_grid_valx1", (y1)*cellHeight+"");
-                Log.i("c_b_grid_valx1", (x2)*cellWidth+"");
-                Log.i("c_b_grid_valx1", (y2)*cellHeight+"");
+                Log.i("c_b_grid_valy1", (y1)*cellHeight+"");
+                Log.i("c_b_grid_valx2", (x2)*cellWidth+"");
+                Log.i("c_b_grid_valy2", cellHeight+"");
                 if(sign_value){
                     x1=rotateX180(x1);
                     x2=rotateX180(x2);

@@ -52,16 +52,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String REF_ID = "ref_id";
     public static final String X_VALUE ="x_value";
     public static final String Y_VALUE="y_value";
-    private static  final String INSERT_VALUES_GRID_ROOM= "INSERT INTO "+ TBL_GRID_ROOM+ " (room_id,grid_no) VALUES (1,'9,34')," +
-            "(2,'6,31'),(3,'6,30'),(4,'6,23')," +
-            "(5,'6,17'),(5,'6,12')," +
-            "(6,'6,12'),(7,'10,12'),(8,'10,18'),(9,'10,26'),(10,'10,32')" ;
+    private static  final String INSERT_VALUES_GRID_ROOM= "INSERT INTO "+ TBL_GRID_ROOM+ " (room_id,grid_no) VALUES (1,'9,33')," +
+            "(2,'6,30'),(3,'6,29'),(4,'6,22')," +
+            "(5,'6,16')," +
+            "(6,'6,11'),(7,'10,11'),(8,'10,17'),(9,'10,25'),(10,'10,31')" ;
     private static final String CREATE_TABLE_WAYPOINTS ="CREATE TABLE IF NOT EXISTS "+TBL_WAYPOINTS +"("+REF_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ROOM_NO+" INTEGER NOT NULL ,"+X_VALUE+" INTEGER not null ,"+Y_VALUE+" INTEGER not null );";
-    private static final String INSERT_VALUE_WAYPOINTS="INSERT INTO " + TBL_WAYPOINTS+ "(room_no,x_value,y_value) VALUES (000,193,748),(208,195,695),(206,192,661),(204,193,531),(202,193,275),(202,206,270),(201,320,262),(205,321,395),(207,323,578),(231,320,722);" ;
+    private static final String INSERT_VALUE_WAYPOINTS="INSERT INTO " + TBL_WAYPOINTS+ "(room_no,x_value,y_value) VALUES (000,9,33),(208,6,30),(206,6,29),(204,6,22),(202,6,16),(201,6,11),(200,10,11),(205,10,17),(207,10,25),(231,10,31);" ;
     public static final String WAY_ID = "way_id";
     public static final String WAY_REF_ID = "way_ref_id";
     private static final String CREATE_TABLE_WAYPOINTS_NUM ="CREATE TABLE IF NOT EXISTS "+TBL_WAYPOINTS_NUMBER +"("+WAY_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ROOM_NO+" INTEGER NOT NULL ,"+WAY_REF_ID+" INTEGER NOT NULL ,"+FLOOR_ID+" INTEGER NOT NULL );";
-    private static final String INSERT_VALUE_WAYPOINTS_NUM="INSERT INTO " + TBL_WAYPOINTS_NUMBER+ "(room_no,way_ref_id,floor_id) VALUES (000,1,1),(208,2,1),(206,3,1),(204,4,1),(202,5,1),(202,6,1),(201,7,1),(205,8,1),(207,9,1),(231,10,1);" ;
+    private static final String INSERT_VALUE_WAYPOINTS_NUM="INSERT INTO " + TBL_WAYPOINTS_NUMBER+ "(room_no,way_ref_id,floor_id) VALUES (000,1,1),(208,2,1),(206,3,1),(204,4,1),(202,5,1),(201,6,1),(200,7,1),(205,8,1),(207,9,1),(231,10,1);" ;
 
 
 

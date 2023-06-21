@@ -263,7 +263,7 @@ public class DatabaseManger {
         return xy_value;
     }
 
-    public int fetchNearByRoom(String className, int floor) {
+    public int fetchNearByRoom(int r_no, int floor) {
 
         int xy_value = -1;
 
@@ -271,7 +271,7 @@ public class DatabaseManger {
         database = dbHelper.getReadableDatabase();
         String selectQuery =  "SELECT * FROM "
                 + DatabaseHelper.TBL_GRID_ROOM  +" a INNER JOIN "+DatabaseHelper.TBL_ROOM+" b ON a."+DatabaseHelper.ROOM_ID+ "= b."+DatabaseHelper.ROOM_ID+
-                " WHERE "+DatabaseHelper.GRID_NO+ " LIKE '" + className  + "'" +
+                " WHERE "+DatabaseHelper.ROOM_NO+ " = '" + r_no  + "'" +
                 " AND "+DatabaseHelper.FLOOR_ID+" = "+ floor ;
 
         Cursor cr=database.rawQuery(selectQuery, null);
