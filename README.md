@@ -21,18 +21,6 @@ This Android app provides precise indoor navigation using **Bluetooth Low Energy
 - **Reliable Indoor Navigation**: The app solves the problem of unreliable GPS signals inside buildings by leveraging BLE signals, providing accurate positioning for users.
 - **Scalable Solution**: Can be deployed in large indoor environments, including campuses, hospitals, airports, and shopping malls.
 
-## Why This Project Stands Out
-
-- **Real-World Problem Solving**: GPS is not always accurate indoors, and this app demonstrates a practical solution by using BLE signals to guide users through indoor spaces.
-- **Technical Expertise**: Showcases my ability to work with **BLE technology**, implement **signal triangulation**, and develop a smooth user experience on Android.
-- **Innovative Approach**: The combination of **BLE signal processing** and Android development illustrates a unique approach to indoor navigation challenges, demonstrating both my creativity and technical proficiency.
-
-## What This Project Demonstrates About Me
-
-- **Expertise in Mobile Development**: Strong skills in Android app development, including working with **Bluetooth technologies** and complex signal processing algorithms.
-- **Problem-Solving Mindset**: Identifying and addressing challenges like the unreliability of GPS indoors, showing my ability to deliver solutions tailored to specific environments.
-- **Attention to User Experience**: Ensuring the app is intuitive and easy to use while maintaining high accuracy for location tracking, enhancing user satisfaction.
-
 ## Future Scope
 
 - **Scaling to Larger Venues**: The app can be expanded to more complex environments like **airports**, **hospitals**, or **multi-level buildings** by deploying additional BLE devices.
